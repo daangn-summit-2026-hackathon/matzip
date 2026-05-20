@@ -1,14 +1,38 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { fetchRestaurantPhotos } from '@/services/data.service';
 import type { RestaurantPhoto } from '@/types';
 
 export function PhotoCarousel({ restaurantId }: { restaurantId: string }) {
   const [photos, setPhotos] = useState<RestaurantPhoto[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
 
   useEffect(() => {
+    setCurrentIndex(0);
     fetchRestaurantPhotos(restaurantId).then(setPhotos).catch(() => {});
   }, [restaurantId]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0]!.clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0]!.clientX;
+  };
+
+  const handleTouchEnd = () => {
+    const diff = touchStartX.current - touchEndX.current;
+    const threshold = 50;
+
+    if (diff > threshold && currentIndex < photos.length - 1) {
+      // Swipe left → next
+      setCurrentIndex(currentIndex + 1);
+    } else if (diff < -threshold && currentIndex > 0) {
+      // Swipe right → prev
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
 
   if (photos.length === 0) {
     return (
@@ -29,9 +53,14 @@ export function PhotoCarousel({ restaurantId }: { restaurantId: string }) {
   }
 
   return (
-    <div className="relative w-full h-48 overflow-hidden rounded-lg">
+    <div
+      className="relative w-full h-48 overflow-hidden rounded-lg touch-pan-y"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       <div
-        className="flex transition-transform duration-300 h-full"
+        className="flex h-full transition-transform duration-300 ease-out"
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {photos.map((photo) => (
@@ -39,7 +68,7 @@ export function PhotoCarousel({ restaurantId }: { restaurantId: string }) {
             key={photo.id}
             src={photo.url}
             alt=""
-            className="w-full h-full object-cover flex-shrink-0"
+            className="w-full h-full object-cover shrink-0"
           />
         ))}
       </div>
@@ -57,17 +86,17 @@ export function PhotoCarousel({ restaurantId }: { restaurantId: string }) {
         ))}
       </div>
 
-      {/* Swipe areas */}
+      {/* Click areas for desktop */}
       <button
         onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
-        className="absolute left-0 top-0 bottom-0 w-1/3"
+        className="absolute left-0 top-0 bottom-0 w-1/4 opacity-0"
         aria-label="Previous photo"
       />
       <button
         onClick={() =>
           setCurrentIndex(Math.min(photos.length - 1, currentIndex + 1))
         }
-        className="absolute right-0 top-0 bottom-0 w-1/3"
+        className="absolute right-0 top-0 bottom-0 w-1/4 opacity-0"
         aria-label="Next photo"
       />
     </div>

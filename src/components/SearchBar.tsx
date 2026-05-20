@@ -50,20 +50,44 @@ export function SearchBar() {
     try {
       const results = await searchRestaurants(searchQuery, language);
       setSearchResults(results);
-      setSearchBottomSheetOpen(true);
+      if (results.length === 1) {
+        // Single result — show detail directly
+        setSelectedRestaurant(results[0]!);
+      } else {
+        setSearchBottomSheetOpen(true);
+      }
     } catch {
       setSearchResults([]);
       setSearchBottomSheetOpen(true);
     }
   };
 
-  const handleSuggestionClick = (suggestion: { type: string; id: string }) => {
+  const handleSuggestionClick = async (suggestion: { type: string; id: string; label: string }) => {
     setShowSuggestions(false);
+
+    // Set the suggestion label as the search query
+    setSearchQuery(suggestion.label);
+
     if (suggestion.type === 'restaurant') {
+      // Single restaurant — go directly to detail
       const restaurant = restaurants.find((r) => r.id === suggestion.id);
       if (restaurant) setSelectedRestaurant(restaurant);
     } else if (suggestion.type === 'tag') {
       useAppStore.getState().toggleTag(suggestion.id);
+    } else {
+      // Cuisine or other — perform search
+      try {
+        const results = await searchRestaurants(suggestion.label, language);
+        setSearchResults(results);
+        if (results.length === 1) {
+          setSelectedRestaurant(results[0]!);
+        } else {
+          setSearchBottomSheetOpen(true);
+        }
+      } catch {
+        setSearchResults([]);
+        setSearchBottomSheetOpen(true);
+      }
     }
   };
 
