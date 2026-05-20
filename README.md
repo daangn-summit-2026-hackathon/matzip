@@ -23,6 +23,20 @@
 
 ---
 
+## 둘러보기
+
+| 홈 (구역 선택) | 구역별 추천 가이드 | 식당 상세 (사진·메뉴) |
+|:---:|:---:|:---:|
+| <img src="screenshots/01-home.PNG" width="240" /> | <img src="screenshots/05-district-hero-card.PNG" width="240" /> | <img src="screenshots/08-detail-with-photos.PNG" width="240" /> |
+
+### 3개 국어 지원 (EN / JA / ZH)
+
+| English | 日本語 | 中文 |
+|:---:|:---:|:---:|
+| <img src="screenshots/90-i18n-en.PNG" width="240" /> | <img src="screenshots/91-i18n-ja.PNG" width="240" /> | <img src="screenshots/92-i18n-zh.PNG" width="240" /> |
+
+---
+
 ## 주요 기능
 
 ### 🗺️ 구역별 맛집 탐색
