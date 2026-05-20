@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { DISTRICTS } from '@/constants/districts';
 import { useAppStore } from '@/store/app-store';
 import { t } from '@/lib/translate';
@@ -9,24 +10,41 @@ const heroTransition = {
   damping: 34,
   mass: 0.9,
 } as const;
+const transitionLockMs = 520;
 
 export function DistrictNavigationBar() {
   const { language, activeDistrict, setActiveDistrict } = useAppStore();
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const transitionTimerRef = useRef<number | null>(null);
   const selectedDistrict = DISTRICTS.find(
     (district) => district.id === activeDistrict,
   );
 
-  const handleSelect = (districtId: string) => {
-    if (activeDistrict === districtId) {
-      setActiveDistrict(null);
-    } else {
-      setActiveDistrict(districtId);
+  useEffect(() => {
+    return () => {
+      if (transitionTimerRef.current !== null) {
+        window.clearTimeout(transitionTimerRef.current);
+      }
+    };
+  }, []);
+
+  const updateDistrict = (districtId: string | null) => {
+    if (isTransitioning || activeDistrict === districtId) return;
+
+    setIsTransitioning(true);
+    if (transitionTimerRef.current !== null) {
+      window.clearTimeout(transitionTimerRef.current);
     }
+    transitionTimerRef.current = window.setTimeout(() => {
+      setIsTransitioning(false);
+      transitionTimerRef.current = null;
+    }, transitionLockMs);
+    setActiveDistrict(districtId);
   };
 
   return (
     <LayoutGroup id="district-navigation">
-      <div className="relative overflow-hidden py-1">
+      <div className="relative overflow-visible py-1">
         <AnimatePresence initial={false} mode="popLayout">
           {selectedDistrict ? (
             <motion.div
@@ -40,7 +58,7 @@ export function DistrictNavigationBar() {
               <motion.section
                 layoutId={`district-surface-${selectedDistrict.id}`}
                 transition={heroTransition}
-                className="relative h-[124px] w-full overflow-hidden rounded-[28px] shadow-lg shadow-gray-900/12 ring-1 ring-white/70"
+                className="relative h-[124px] w-full overflow-hidden rounded-[28px] shadow-lg shadow-gray-900/12"
                 aria-label={t(selectedDistrict.translations, 'name', language)}
               >
                 <motion.div
@@ -49,6 +67,8 @@ export function DistrictNavigationBar() {
                   className="absolute inset-0 bg-cover bg-center"
                   style={{
                     backgroundImage: `url(${selectedDistrict.image_url})`,
+                    backgroundPosition: 'center center',
+                    backgroundSize: 'cover',
                   }}
                 />
                 <motion.div
@@ -68,7 +88,8 @@ export function DistrictNavigationBar() {
                 <div className="relative z-10 flex h-full items-center gap-3.5 px-4 text-gray-950">
                   <motion.button
                     type="button"
-                    onClick={() => setActiveDistrict(null)}
+                    onClick={() => updateDistrict(null)}
+                    disabled={isTransitioning}
                     className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/80 bg-white/78 text-2xl leading-none text-gray-950 shadow-md shadow-gray-900/10 backdrop-blur-md transition-colors hover:bg-white/92 active:bg-white"
                     aria-label="Back to district list"
                     initial={{ opacity: 0, x: -18, scale: 0.72 }}
@@ -117,8 +138,9 @@ export function DistrictNavigationBar() {
                   layoutId={`district-surface-${district.id}`}
                   transition={heroTransition}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => handleSelect(district.id)}
-                  className="relative flex h-[55px] min-w-[112px] items-center justify-center overflow-hidden rounded-full border border-white/70 px-5 text-gray-950 shadow-md shadow-gray-900/10 transition-[border-color,box-shadow,filter] hover:border-white/90 hover:brightness-105 active:brightness-95"
+                  onClick={() => updateDistrict(district.id)}
+                  disabled={isTransitioning}
+                  className="relative flex h-[55px] min-w-[112px] items-center justify-center overflow-hidden rounded-full px-5 text-gray-950 shadow-md shadow-gray-900/10 transition-[box-shadow,filter] hover:brightness-105 active:brightness-95"
                 >
                   <motion.span
                     layoutId={`district-image-${district.id}`}
@@ -126,6 +148,8 @@ export function DistrictNavigationBar() {
                     className="absolute inset-0 bg-cover bg-center"
                     style={{
                       backgroundImage: `url(${district.image_url})`,
+                      backgroundPosition: 'center center',
+                      backgroundSize: 'cover',
                     }}
                   />
                   <motion.span
