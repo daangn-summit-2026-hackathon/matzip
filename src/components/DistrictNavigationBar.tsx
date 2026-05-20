@@ -149,7 +149,7 @@ export function DistrictNavigationBar() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => updateDistrict(district.id)}
                   disabled={isTransitioning}
-                  className="relative flex h-[55px] min-w-[112px] items-center justify-center overflow-hidden rounded-full px-5 text-white shadow-md shadow-gray-900/18 transition-[box-shadow,filter] hover:brightness-105 active:brightness-95"
+                  className="relative flex h-[55px] min-w-[112px] items-center justify-center overflow-hidden rounded-full px-5 text-white shadow-lg shadow-gray-900/25 transition-[box-shadow,filter] hover:brightness-105 active:brightness-95"
                 >
                   <motion.span
                     layoutId={`district-image-${district.id}`}

@@ -112,7 +112,7 @@ export function SearchBar() {
           onChange={(e) => handleChange(e.target.value)}
           onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
           placeholder={t('search.placeholder')}
-          className="w-full px-5 py-3.5 bg-white rounded-full text-base outline-none shadow-lg border border-gray-100 focus:ring-2 focus:ring-blue-300"
+          className="w-full px-5 py-3 bg-white rounded-full text-base outline-none shadow-lg border border-gray-100 focus:ring-2 focus:ring-blue-300"
         />
       </form>
 
