@@ -1,11 +1,10 @@
-import { APIProvider, Map, AdvancedMarker, useMap } from '@vis.gl/react-google-maps';
-import { useEffect, useRef, useCallback } from 'react';
+import { APIProvider, Map, useMap } from '@vis.gl/react-google-maps';
+import { useEffect, useRef } from 'react';
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { useAppStore } from '@/store/app-store';
 import { DISTRICTS } from '@/constants/districts';
 import { filterByTags } from '@/services/search.service';
 import { t } from '@/lib/translate';
-import { RestaurantPin } from './RestaurantPin';
 import type { Restaurant } from '@/types';
 
 const SEOUL_CENTER = { lat: 37.5665, lng: 126.978 };
@@ -25,13 +24,13 @@ export function MapContainer() {
         disableDefaultUI
         className="w-full h-full"
       >
-        <MapContent district={district} />
+        <ClusteredMarkers district={district} />
       </Map>
     </APIProvider>
   );
 }
 
-function MapContent({ district }: { district: typeof DISTRICTS[number] | undefined }) {
+function ClusteredMarkers({ district }: { district: typeof DISTRICTS[number] | undefined }) {
   const map = useMap();
   const {
     restaurants,
@@ -41,7 +40,7 @@ function MapContent({ district }: { district: typeof DISTRICTS[number] | undefin
   } = useAppStore();
 
   const clustererRef = useRef<MarkerClusterer | null>(null);
-  const markersRef = useRef<globalThis.Map<string, google.maps.marker.AdvancedMarkerElement>>(new globalThis.Map());
+  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
 
   const visibleRestaurants = filterByTags(restaurants, selectedTags);
 
@@ -57,53 +56,69 @@ function MapContent({ district }: { district: typeof DISTRICTS[number] | undefin
     }
   }, [district, map]);
 
-  // Initialize clusterer
+  // Create/update markers imperatively
   useEffect(() => {
     if (!map) return;
-    if (!clustererRef.current) {
+
+    // Clear old markers
+    for (const marker of markersRef.current) {
+      marker.map = null;
+    }
+    markersRef.current = [];
+
+    if (clustererRef.current) {
+      clustererRef.current.clearMarkers();
+    } else {
       clustererRef.current = new MarkerClusterer({ map, markers: [] });
     }
+
+    // Create new markers
+    const newMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
+
+    for (const restaurant of visibleRestaurants) {
+      const marker = createMarker(restaurant, language, setSelectedRestaurant);
+      newMarkers.push(marker);
+    }
+
+    markersRef.current = newMarkers;
+    clustererRef.current.addMarkers(newMarkers);
+
     return () => {
-      clustererRef.current?.clearMarkers();
-    };
-  }, [map]);
-
-  // Update clusterer markers when restaurants change
-  useEffect(() => {
-    if (!clustererRef.current) return;
-    clustererRef.current.clearMarkers();
-    const markers = Array.from(markersRef.current.values());
-    clustererRef.current.addMarkers(markers);
-  }, [visibleRestaurants]);
-
-  const setMarkerRef = useCallback(
-    (marker: google.maps.marker.AdvancedMarkerElement | null, id: string) => {
-      if (marker) {
-        markersRef.current.set(id, marker);
-      } else {
-        markersRef.current.delete(id);
+      // Cleanup on unmount
+      for (const marker of markersRef.current) {
+        marker.map = null;
       }
-    },
-    [],
-  );
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, visibleRestaurants, language]);
 
-  return (
-    <>
-      {visibleRestaurants.map((restaurant: Restaurant) => {
-        const photoUrl = restaurant.translations?.photo_url?.en ?? undefined;
+  return null;
+}
 
-        return (
-          <AdvancedMarker
-            key={restaurant.id}
-            position={{ lat: restaurant.lat, lng: restaurant.lng }}
-            title={t(restaurant.translations, 'name', language)}
-            onClick={() => setSelectedRestaurant(restaurant)}
-            ref={(marker) => setMarkerRef(marker, restaurant.id)}
-          >
-            <RestaurantPin photoUrl={photoUrl} />
-          </AdvancedMarker>
-        );
-      })}
-    </>
-  );
+function createMarker(
+  restaurant: Restaurant,
+  language: 'en' | 'ja' | 'zh',
+  onSelect: (r: Restaurant) => void,
+): google.maps.marker.AdvancedMarkerElement {
+  const photoUrl = restaurant.translations?.photo_url?.en;
+
+  // Create pin content
+  const content = document.createElement('div');
+  content.className = 'flex flex-col items-center cursor-pointer';
+  content.innerHTML = `
+    <div style="width:40px;height:40px;border-radius:50%;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);overflow:hidden;background:#e5e7eb;">
+      <img src="${photoUrl || '/icon.png'}" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='/icon.png'" />
+    </div>
+    <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid white;margin-top:-1px;filter:drop-shadow(0 1px 1px rgba(0,0,0,0.1));"></div>
+  `;
+
+  const marker = new google.maps.marker.AdvancedMarkerElement({
+    position: { lat: restaurant.lat, lng: restaurant.lng },
+    title: t(restaurant.translations, 'name', language),
+    content,
+  });
+
+  marker.addListener('click', () => onSelect(restaurant));
+
+  return marker;
 }

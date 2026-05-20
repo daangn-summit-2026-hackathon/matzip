@@ -75,7 +75,7 @@ export default function App() {
       </div>
 
       {/* Floating Header */}
-      <div className="absolute top-0 left-0 right-0 z-20 pointer-events-none px-4 pt-[env(safe-area-inset-top,24px)]">
+      <div className="absolute top-0 left-0 right-0 z-20 pointer-events-none px-4 pt-[calc(env(safe-area-inset-top,24px)+12px)]">
         <header className="flex items-center gap-3 pointer-events-auto">
           <SearchBar />
           <LanguageSwitcher />

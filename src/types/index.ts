@@ -22,6 +22,7 @@ export interface Restaurant {
   phone_number: string | null;
   created_at: string;
   translations: TranslationMap;
+  primary_photo_url?: string | null;
 }
 
 export interface RestaurantPhoto {
