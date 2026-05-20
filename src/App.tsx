@@ -68,60 +68,61 @@ export default function App() {
   const district = DISTRICTS.find((d) => d.id === activeDistrict);
 
   return (
-    <div className="h-full flex flex-col relative">
-      {/* Header */}
-      <header className="flex items-center gap-3 px-4 py-3 bg-white z-20 shadow-sm">
-        <SearchBar />
-        <LanguageSwitcher />
-      </header>
-
-      {/* District Navigation */}
-      <nav className="z-10 bg-white border-b border-gray-100">
-        <DistrictNavigationBar />
-      </nav>
-
-      {/* Map */}
-      <main className="flex-1 relative">
+    <div className="h-full relative">
+      {/* Full-screen Map */}
+      <div className="absolute inset-0">
         <MapContainer />
+      </div>
 
-        {/* District Description Banner */}
-        <AnimatePresence>
-          {district && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="absolute top-3 left-4 right-4 bg-white/95 backdrop-blur rounded-lg p-3 shadow-md z-10"
-            >
-              <p className="text-sm text-gray-700">
-                {t(district.translations, 'description', language)}
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+      {/* Floating Header */}
+      <div className="absolute top-0 left-0 right-0 z-20 pointer-events-none">
+        <header className="flex items-center gap-3 px-4 pt-[env(safe-area-inset-top,12px)] pb-2 pointer-events-auto">
+          <SearchBar />
+          <LanguageSwitcher />
+        </header>
 
-        {/* Select District Prompt */}
-        {!activeDistrict && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="bg-white/90 backdrop-blur rounded-xl px-6 py-4 shadow-lg">
-              <p className="text-gray-600 text-sm font-medium">
-                {i18nT('district.selectPrompt')}
-              </p>
-            </div>
-          </div>
-        )}
+        <nav className="pointer-events-auto">
+          <DistrictNavigationBar />
+        </nav>
+      </div>
 
-        {/* Tag Filter FAB */}
-        {activeDistrict && (
-          <button
-            onClick={() => setTagFilterOpen(true)}
-            className="absolute bottom-6 right-4 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center z-10 active:scale-95 transition-transform"
-            aria-label="Filter by tags"
+      {/* District Description Banner */}
+      <AnimatePresence>
+        {district && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="absolute top-28 left-4 right-4 bg-white/95 backdrop-blur rounded-lg p-3 shadow-md z-10"
           >
-            <span className="text-xl">🏷️</span>
-          </button>
+            <p className="text-sm text-gray-700">
+              {t(district.translations, 'description', language)}
+            </p>
+          </motion.div>
         )}
-      </main>
+      </AnimatePresence>
+
+      {/* Select District Prompt */}
+      {!activeDistrict && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="bg-white/90 backdrop-blur rounded-xl px-6 py-4 shadow-lg">
+            <p className="text-gray-600 text-sm font-medium">
+              {i18nT('district.selectPrompt')}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Tag Filter FAB */}
+      {activeDistrict && (
+        <button
+          onClick={() => setTagFilterOpen(true)}
+          className="absolute bottom-6 right-4 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center z-10 active:scale-95 transition-transform"
+          aria-label="Filter by tags"
+        >
+          <span className="text-xl">🏷️</span>
+        </button>
+      )}
 
       {/* Overlays */}
       <DetailPanel />
