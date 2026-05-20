@@ -125,7 +125,7 @@ export function DetailPanel() {
       }}
       onTransitionEnd={() => setIsAnimating(false)}
     >
-      {/* 드래그 핸들 영역 (핸들 + 제목까지 넓은 터치 영역) */}
+      {/* 드래그 핸들 영역 (핸들 + 사진 + 제목까지 넓은 터치 영역) */}
       <div
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -137,15 +137,20 @@ export function DetailPanel() {
           <div className="w-10 h-1.5 bg-gray-300 rounded-full" />
         </div>
         {selectedRestaurant && (
-          <div className="flex items-center justify-between px-4">
-            <h2 className="text-xl font-bold">
-              {t(selectedRestaurant.translations, 'name', language)}
-            </h2>
-            <RatingDisplay
-              rating={selectedRestaurant.rating}
-              ratingCount={selectedRestaurant.rating_count}
-            />
-          </div>
+          <>
+            <div className="px-4 mb-3">
+              <PhotoCarousel restaurantId={selectedRestaurant.id} />
+            </div>
+            <div className="flex items-center justify-between px-4">
+              <h2 className="text-xl font-bold">
+                {t(selectedRestaurant.translations, 'name', language)}
+              </h2>
+              <RatingDisplay
+                rating={selectedRestaurant.rating}
+                ratingCount={selectedRestaurant.rating_count}
+              />
+            </div>
+          </>
         )}
       </div>
 
@@ -160,8 +165,6 @@ export function DetailPanel() {
       >
         {selectedRestaurant && (
           <div className="px-4 pb-6 space-y-4">
-            {/* Photos */}
-            <PhotoCarousel restaurantId={selectedRestaurant.id} />
 
             {/* Address */}
             <p className="text-sm text-gray-500">
