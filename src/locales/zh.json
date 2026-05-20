@@ -1,0 +1,45 @@
+{
+  "app": {
+    "title": "美食地图",
+    "subtitle": "发现首尔美食"
+  },
+  "search": {
+    "placeholder": "搜索餐厅、美食...",
+    "noResults": "未找到结果",
+    "mapUnavailable": "地图视图暂时不可用"
+  },
+  "district": {
+    "selectPrompt": "选择区域开始探索",
+    "restaurants": "家餐厅",
+    "emptyState": "该区域暂无餐厅"
+  },
+  "detail": {
+    "hours": "营业时间",
+    "phone": "电话",
+    "menu": "菜单",
+    "hoursUnavailable": "营业时间暂无",
+    "addressUnavailable": "地址暂无"
+  },
+  "rating": {
+    "new": "新店"
+  },
+  "filter": {
+    "title": "按标签筛选",
+    "showResults": "显示结果",
+    "clear": "清除"
+  },
+  "language": {
+    "en": "EN",
+    "ja": "JA",
+    "zh": "ZH"
+  },
+  "loading": {
+    "map": "加载地图中...",
+    "data": "加载餐厅中..."
+  },
+  "error": {
+    "generic": "出了点问题",
+    "retry": "重试",
+    "mapFailed": "无法加载地图"
+  }
+}

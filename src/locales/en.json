@@ -1,0 +1,45 @@
+{
+  "app": {
+    "title": "Matzip Map",
+    "subtitle": "Discover Seoul's Best Eats"
+  },
+  "search": {
+    "placeholder": "Search restaurants, cuisine...",
+    "noResults": "No results found",
+    "mapUnavailable": "Map view temporarily unavailable"
+  },
+  "district": {
+    "selectPrompt": "Select a district to explore",
+    "restaurants": "restaurants",
+    "emptyState": "No restaurants in this area yet"
+  },
+  "detail": {
+    "hours": "Hours",
+    "phone": "Phone",
+    "menu": "Menu",
+    "hoursUnavailable": "Hours not available",
+    "addressUnavailable": "Address not available"
+  },
+  "rating": {
+    "new": "New"
+  },
+  "filter": {
+    "title": "Filter by Tags",
+    "showResults": "Show Results",
+    "clear": "Clear All"
+  },
+  "language": {
+    "en": "EN",
+    "ja": "JA",
+    "zh": "ZH"
+  },
+  "loading": {
+    "map": "Loading map...",
+    "data": "Loading restaurants..."
+  },
+  "error": {
+    "generic": "Something went wrong",
+    "retry": "Try Again",
+    "mapFailed": "Could not load map"
+  }
+}

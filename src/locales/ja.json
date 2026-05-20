@@ -1,0 +1,45 @@
+{
+  "app": {
+    "title": "マッチプマップ",
+    "subtitle": "ソウルの美味しいお店を発見"
+  },
+  "search": {
+    "placeholder": "レストラン、料理を検索...",
+    "noResults": "結果が見つかりません",
+    "mapUnavailable": "マップビューは一時的に利用できません"
+  },
+  "district": {
+    "selectPrompt": "エリアを選んで探索",
+    "restaurants": "件",
+    "emptyState": "このエリアにはまだレストランがありません"
+  },
+  "detail": {
+    "hours": "営業時間",
+    "phone": "電話",
+    "menu": "メニュー",
+    "hoursUnavailable": "営業時間情報なし",
+    "addressUnavailable": "住所情報なし"
+  },
+  "rating": {
+    "new": "New"
+  },
+  "filter": {
+    "title": "タグで絞り込み",
+    "showResults": "結果を表示",
+    "clear": "クリア"
+  },
+  "language": {
+    "en": "EN",
+    "ja": "JA",
+    "zh": "ZH"
+  },
+  "loading": {
+    "map": "マップを読み込み中...",
+    "data": "レストランを読み込み中..."
+  },
+  "error": {
+    "generic": "エラーが発生しました",
+    "retry": "再試行",
+    "mapFailed": "マップを読み込めませんでした"
+  }
+}
