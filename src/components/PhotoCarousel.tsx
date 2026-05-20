@@ -7,22 +7,47 @@ import type { RestaurantPhoto } from '@/types';
 
 export function PhotoCarousel({ restaurantId }: { restaurantId: string }) {
   const [photos, setPhotos] = useState<RestaurantPhoto[]>([]);
+  const [failedPhotoUrls, setFailedPhotoUrls] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const suppressNextOpen = useRef(false);
 
+  const availablePhotos = useMemo(
+    () => photos.filter((photo) => !failedPhotoUrls.has(photo.url)),
+    [failedPhotoUrls, photos],
+  );
+
   const slides = useMemo(
-    () => photos.map((photo) => ({ src: photo.url })),
-    [photos],
+    () => availablePhotos.map((photo) => ({ src: photo.url })),
+    [availablePhotos],
   );
 
   useEffect(() => {
     setCurrentIndex(0);
     setIsLightboxOpen(false);
+    setFailedPhotoUrls(new Set());
     fetchRestaurantPhotos(restaurantId).then(setPhotos).catch(() => {});
   }, [restaurantId]);
+
+  useEffect(() => {
+    if (currentIndex >= availablePhotos.length) {
+      setCurrentIndex(Math.max(0, availablePhotos.length - 1));
+    }
+  }, [availablePhotos.length, currentIndex]);
+
+  const handleImageError = (url: string) => {
+    setFailedPhotoUrls((current) => {
+      if (current.has(url)) return current;
+
+      const next = new Set(current);
+      next.add(url);
+      return next;
+    });
+  };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     const startX = e.touches[0]!.clientX;
@@ -46,7 +71,9 @@ export function PhotoCarousel({ restaurantId }: { restaurantId: string }) {
     }, 250);
 
     if (diff > threshold) {
-      setCurrentIndex((index) => Math.min(photos.length - 1, index + 1));
+      setCurrentIndex((index) =>
+        Math.min(availablePhotos.length - 1, index + 1),
+      );
     } else if (diff < -threshold) {
       setCurrentIndex((index) => Math.max(0, index - 1));
     }
@@ -86,11 +113,13 @@ export function PhotoCarousel({ restaurantId }: { restaurantId: string }) {
     />
   );
 
-  if (photos.length === 0) {
+  if (availablePhotos.length === 0) {
     return null;
   }
 
-  if (photos.length === 1) {
+  if (availablePhotos.length === 1) {
+    const photo = availablePhotos[0]!;
+
     return (
       <>
         <button
@@ -101,10 +130,11 @@ export function PhotoCarousel({ restaurantId }: { restaurantId: string }) {
           className="block h-48 w-full cursor-zoom-in overflow-hidden rounded-lg bg-gray-100 p-0"
         >
           <img
-            src={photos[0]!.url}
+            src={photo.url}
             alt=""
             draggable={false}
             className="h-full w-full object-cover"
+            onError={() => handleImageError(photo.url)}
           />
         </button>
         {lightbox}
@@ -124,11 +154,11 @@ export function PhotoCarousel({ restaurantId }: { restaurantId: string }) {
           className="flex h-full transition-transform duration-300 ease-out"
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
-          {photos.map((photo, index) => (
+          {availablePhotos.map((photo, index) => (
             <button
               key={photo.id}
               type="button"
-              aria-label={`Open photo ${index + 1} of ${photos.length}`}
+              aria-label={`Open photo ${index + 1} of ${availablePhotos.length}`}
               onClick={() => openLightbox(index)}
               onPointerDown={(e) => e.stopPropagation()}
               className="block h-full w-full shrink-0 cursor-zoom-in p-0"
@@ -138,13 +168,14 @@ export function PhotoCarousel({ restaurantId }: { restaurantId: string }) {
                 alt=""
                 draggable={false}
                 className="h-full w-full object-cover"
+                onError={() => handleImageError(photo.url)}
               />
             </button>
           ))}
         </div>
 
         <div className="absolute inset-x-0 bottom-2 flex justify-center gap-1.5">
-          {photos.map((_, i) => (
+          {availablePhotos.map((_, i) => (
             <button
               key={i}
               type="button"

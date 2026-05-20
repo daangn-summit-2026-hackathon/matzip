@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { MapPin, Utensils } from 'lucide-react';
 import { getRestaurantRatingStyle } from '@/lib/rating-style';
 import { t as translate } from '@/lib/translate';
@@ -14,6 +15,10 @@ export function RestaurantList({
   language,
   onRestaurantClick,
 }: RestaurantListProps) {
+  const [failedPhotoUrls, setFailedPhotoUrls] = useState<Set<string>>(
+    () => new Set(),
+  );
+
   return (
     <div className="space-y-2 pb-6">
       {restaurants.map((restaurant) => {
@@ -28,6 +33,9 @@ export function RestaurantList({
           restaurant.rating,
           restaurant.rating_count,
         );
+        const photoUrl = restaurant.primary_photo_url ?? undefined;
+        const shouldShowPhoto =
+          photoUrl !== undefined && !failedPhotoUrls.has(photoUrl);
 
         return (
           <button
@@ -36,12 +44,23 @@ export function RestaurantList({
             onClick={() => onRestaurantClick(restaurant)}
             className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left transition-colors hover:bg-gray-50 active:bg-gray-100"
           >
-            {restaurant.primary_photo_url ? (
+            {shouldShowPhoto ? (
               <img
-                src={restaurant.primary_photo_url}
+                src={photoUrl}
                 alt=""
                 className="h-14 w-14 shrink-0 rounded-lg object-cover"
                 loading="lazy"
+                onError={() => {
+                  setFailedPhotoUrls((current) => {
+                    if (current.has(photoUrl)) {
+                      return current;
+                    }
+
+                    const next = new Set(current);
+                    next.add(photoUrl);
+                    return next;
+                  });
+                }}
               />
             ) : (
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
