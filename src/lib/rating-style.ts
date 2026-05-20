@@ -2,7 +2,15 @@ export function getRestaurantRatingStyle(
   rating: number | null,
   ratingCount: number,
 ) {
-  if (rating !== null && ratingCount >= 3 && rating >= 4.5) {
+  if (rating === null || ratingCount < 0) {
+    return {
+      backgroundColor: '#fde047',
+      color: '#713f12',
+      displayText: '★',
+    } as const;
+  }
+
+  if (rating >= 4.5) {
     return {
       backgroundColor: '#16a34a',
       color: '#ffffff',
@@ -10,7 +18,7 @@ export function getRestaurantRatingStyle(
     } as const;
   }
 
-  if (rating !== null && ratingCount >= 3 && rating >= 4.0) {
+  if (rating >= 4.0) {
     return {
       backgroundColor: '#86efac',
       color: '#166534',
@@ -21,6 +29,6 @@ export function getRestaurantRatingStyle(
   return {
     backgroundColor: '#fde047',
     color: '#713f12',
-    displayText: '★',
+    displayText: rating.toFixed(1),
   } as const;
 }
