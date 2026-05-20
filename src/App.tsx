@@ -75,13 +75,13 @@ export default function App() {
       </div>
 
       {/* Floating Header */}
-      <div className="absolute top-0 left-0 right-0 z-20 pointer-events-none p-4 pt-[env(safe-area-inset-top,16px)]">
+      <div className="absolute top-0 left-0 right-0 z-20 pointer-events-none px-4 pt-[env(safe-area-inset-top,24px)]">
         <header className="flex items-center gap-3 pointer-events-auto">
           <SearchBar />
           <LanguageSwitcher />
         </header>
 
-        <nav className="mt-2 pointer-events-auto">
+        <nav className="mt-1.5 -mx-4 pointer-events-auto">
           <DistrictNavigationBar />
         </nav>
       </div>
