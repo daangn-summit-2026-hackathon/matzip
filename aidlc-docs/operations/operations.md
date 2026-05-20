@@ -5,11 +5,10 @@
 | 항목 | 상태 | 비고 |
 |------|------|------|
 | Production 배포 | ✅ 완료 | Cloudflare Workers |
-| 도메인 | 기본 제공 | `matzip-map.{account}.workers.dev` |
+| 도메인 | ✅ 운영 중 | `matzip.coldot-sub-1.workers.dev` |
 | SSL/TLS | ✅ 자동 | Cloudflare 제공 |
 | CDN | ✅ 자동 | Cloudflare 글로벌 엣지 (300+ PoP) |
 | Database | ✅ 운영 중 | Supabase PostgreSQL (ap-northeast-2) |
-| Storage | ✅ 운영 중 | Supabase Storage (restaurant-photos) |
 
 ---
 
@@ -25,7 +24,7 @@ pnpm build        # TypeScript 컴파일 + Vite 빌드
 pnpm deploy       # pnpm build && wrangler deploy
 
 # 3. 배포 확인
-# https://matzip-map.{account}.workers.dev 접속하여 동작 확인
+# https://matzip.coldot-sub-1.workers.dev 접속하여 동작 확인
 ```
 
 ### 2.2 배포 소요 시간

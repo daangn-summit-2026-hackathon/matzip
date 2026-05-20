@@ -251,7 +251,7 @@ export const DISTRICTS: District[] = [
 |-------|------|-------------|
 | id | string | 고유 식별자 |
 | restaurant_id | string FK | 소속 맛집 |
-| url | string | 사진 URL (Supabase Storage) |
+| url | string | 사진 URL (외부 이미지 URL) |
 | display_order | int | 캐러셀 표시 순서 |
 | translations | jsonb | 번역 데이터 (alt_text) |
 

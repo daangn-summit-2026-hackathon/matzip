@@ -131,10 +131,11 @@ ALTER TABLE menu_items ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public read" ON menu_items FOR SELECT USING (true);
 ```
 
-### Storage Bucket
+### Photo Storage Strategy
 ```
-사진은 외부 URL을 restaurant_photos 테이블의 url 컬럼에 직접 저장합니다.
-Supabase Storage는 사용하지 않습니다.
+사진은 외부 이미지 URL을 restaurant_photos 테이블의 url 컬럼에 직접 저장합니다.
+별도 파일 스토리지 서비스를 사용하지 않아 운영 비용을 절감합니다.
+이미지는 외부 CDN(Google Places 등)에서 직접 서빙됩니다.
 ```
 
 ## Google Maps Configuration

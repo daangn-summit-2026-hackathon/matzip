@@ -20,7 +20,7 @@ Search → debounced Supabase query (300ms)
 - **Districts/Tags**: 하드코딩이므로 캐싱 불필요 (번들에 포함)
 - **레스토랑 데이터**: Zustand store에 구역별 캐시 (같은 구역 재선택 시 재요청 안 함)
 - **검색 결과**: 캐시하지 않음 (매번 fresh query)
-- **이미지**: 브라우저 HTTP 캐시에 의존 (Supabase Storage Cache-Control 헤더)
+- **이미지**: 브라우저 HTTP 캐시에 의존 (외부 이미지 서버 Cache-Control 헤더)
 
 ### Bundle Optimization
 - Tree shaking (Vite 기본)

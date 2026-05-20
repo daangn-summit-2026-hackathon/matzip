@@ -14,7 +14,7 @@
 - Vite 코드 스플리팅으로 초기 번들 최소화
 - Google Maps SDK lazy loading
 - 구역 선택 시에만 레스토랑 데이터 fetch (초기 로드 최소화)
-- 이미지 lazy loading + Supabase Storage 리사이징
+- 이미지 lazy loading (브라우저 네이티브)
 
 ## 확장성 (Scalability)
 
