@@ -125,7 +125,7 @@ export function DistrictNavigationBar() {
           ) : (
             <motion.div
               key="district-chip-strip"
-              className="flex gap-2 overflow-x-auto px-4 scrollbar-hide"
+              className="-mb-24 flex gap-2 overflow-x-auto px-4 pb-24 scrollbar-hide"
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
@@ -140,7 +140,7 @@ export function DistrictNavigationBar() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => updateDistrict(district.id)}
                   disabled={isTransitioning}
-                  className="relative flex h-[55px] min-w-[112px] items-center justify-center overflow-hidden rounded-full px-5 text-gray-950 shadow-md shadow-gray-900/10 transition-[box-shadow,filter] hover:brightness-105 active:brightness-95"
+                  className="relative flex h-[55px] min-w-[112px] items-center justify-center overflow-hidden rounded-full px-5 text-white shadow-md shadow-gray-900/18 transition-[box-shadow,filter] hover:brightness-105 active:brightness-95"
                 >
                   <motion.span
                     layoutId={`district-image-${district.id}`}
@@ -156,12 +156,12 @@ export function DistrictNavigationBar() {
                     layoutId={`district-scrim-${district.id}`}
                     transition={heroTransition}
                     className="absolute inset-0"
-                    style={{ backgroundColor: 'rgba(255, 255, 255, 0.56)' }}
+                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.38)' }}
                   />
                   <motion.span
                     layoutId={`district-title-${district.id}`}
                     transition={heroTransition}
-                    className="relative z-10 text-sm font-semibold leading-none text-gray-950 drop-shadow-[0_1px_0_rgba(255,255,255,0.75)]"
+                    className="relative z-10 text-sm font-semibold leading-none text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.65)]"
                   >
                     {t(district.translations, 'name', language)}
                   </motion.span>
