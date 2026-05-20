@@ -2,7 +2,7 @@
 
 > 한국을 방문하는 외국인 관광객을 위한 현지인 추천 맛집 지도 앱
 
-### 👉 [지금 바로 사용해보기 → matzip.coldot-sub-1.workers.dev](https://matzip.coldot-sub-1.workers.dev/)
+### 👉 [지금 바로 사용해보기](https://matzip.coldot-sub-1.workers.dev/)
 
 ## 프로젝트 소개
 
