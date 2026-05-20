@@ -9,6 +9,7 @@ import type { Restaurant } from '@/types';
 
 const SEOUL_CENTER = { lat: 37.5665, lng: 126.978 };
 const DEFAULT_ZOOM = 12;
+const CAMERA_ANIMATION_MS = 380;
 
 export function MapContainer() {
   const { activeDistrict } = useAppStore();
@@ -42,19 +43,35 @@ function ClusteredMarkers({ district }: { district: typeof DISTRICTS[number] | u
 
   const clustererRef = useRef<MarkerClusterer | null>(null);
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
+  const cancelCameraAnimationRef = useRef<(() => void) | null>(null);
 
   const visibleRestaurants = filterByTags(restaurants, selectedTags);
 
   // Pan to district when selected
   useEffect(() => {
     if (!map) return;
+
+    cancelCameraAnimationRef.current?.();
+    cancelCameraAnimationRef.current = null;
+
     if (district) {
-      map.panTo({ lat: district.center_lat, lng: district.center_lng });
-      map.setZoom(district.zoom_level);
+      cancelCameraAnimationRef.current = animateMapCamera(
+        map,
+        { lat: district.center_lat, lng: district.center_lng },
+        district.zoom_level,
+      );
     } else {
-      map.panTo(SEOUL_CENTER);
-      map.setZoom(DEFAULT_ZOOM);
+      cancelCameraAnimationRef.current = animateMapCamera(
+        map,
+        SEOUL_CENTER,
+        DEFAULT_ZOOM,
+      );
     }
+
+    return () => {
+      cancelCameraAnimationRef.current?.();
+      cancelCameraAnimationRef.current = null;
+    };
   }, [district, map]);
 
   // Create/update markers imperatively
@@ -117,6 +134,55 @@ function ClusteredMarkers({ district }: { district: typeof DISTRICTS[number] | u
   }, [map, markerLib, visibleRestaurants, language]);
 
   return null;
+}
+
+function animateMapCamera(
+  map: google.maps.Map,
+  targetCenter: google.maps.LatLngLiteral,
+  targetZoom: number,
+): () => void {
+  const startCenter = map.getCenter()?.toJSON() ?? targetCenter;
+  const startZoom = map.getZoom() ?? targetZoom;
+  const startedAt = performance.now();
+  let frameId: number | null = null;
+  let isCancelled = false;
+
+  const step = (now: number) => {
+    if (isCancelled) return;
+
+    const progress = Math.min((now - startedAt) / CAMERA_ANIMATION_MS, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+
+    map.moveCamera({
+      center: {
+        lat: interpolate(startCenter.lat, targetCenter.lat, eased),
+        lng: interpolate(startCenter.lng, targetCenter.lng, eased),
+      },
+      zoom: interpolate(startZoom, targetZoom, eased),
+    });
+
+    if (progress < 1) {
+      frameId = window.requestAnimationFrame(step);
+      return;
+    }
+
+    map.moveCamera({ center: targetCenter, zoom: targetZoom });
+    frameId = null;
+  };
+
+  frameId = window.requestAnimationFrame(step);
+
+  return () => {
+    isCancelled = true;
+    if (frameId !== null) {
+      window.cancelAnimationFrame(frameId);
+      frameId = null;
+    }
+  };
+}
+
+function interpolate(start: number, end: number, progress: number): number {
+  return start + (end - start) * progress;
 }
 
 function createMarker(

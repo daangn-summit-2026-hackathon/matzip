@@ -13,7 +13,13 @@ const heroTransition = {
 const transitionLockMs = 520;
 
 export function DistrictNavigationBar() {
-  const { language, activeDistrict, setActiveDistrict } = useAppStore();
+  const {
+    language,
+    activeDistrict,
+    isDetailPanelOpen,
+    setActiveDistrict,
+    setDetailPanelOpen,
+  } = useAppStore();
   const [isTransitioning, setIsTransitioning] = useState(false);
   const transitionTimerRef = useRef<number | null>(null);
   const selectedDistrict = DISTRICTS.find(
@@ -39,6 +45,9 @@ export function DistrictNavigationBar() {
       setIsTransitioning(false);
       transitionTimerRef.current = null;
     }, transitionLockMs);
+    if (districtId === null && isDetailPanelOpen) {
+      setDetailPanelOpen(false);
+    }
     setActiveDistrict(districtId);
   };
 
@@ -156,7 +165,7 @@ export function DistrictNavigationBar() {
                     layoutId={`district-scrim-${district.id}`}
                     transition={heroTransition}
                     className="absolute inset-0"
-                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.38)' }}
+                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.28)' }}
                   />
                   <motion.span
                     layoutId={`district-title-${district.id}`}
