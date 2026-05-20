@@ -144,7 +144,7 @@ CREATE POLICY "Public read" ON menu_items FOR SELECT USING (true);
 - API: Maps JavaScript API 활성화
 - Key restrictions:
   - Application: HTTP referrers
-  - Allowed referrers: `matzip-map.{your-domain}.workers.dev/*`, `localhost:*`
+  - Allowed referrers: `matzip.coldot-sub-1.workers.dev/*`, `localhost:*`
 - Quota: 기본 (월 $200 크레딧 ≈ 28,000 map loads)
 
 ### Map ID
