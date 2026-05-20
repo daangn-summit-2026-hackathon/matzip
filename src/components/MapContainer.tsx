@@ -70,7 +70,30 @@ function ClusteredMarkers({ district }: { district: typeof DISTRICTS[number] | u
     if (clustererRef.current) {
       clustererRef.current.clearMarkers();
     } else {
-      clustererRef.current = new MarkerClusterer({ map, markers: [] });
+      clustererRef.current = new MarkerClusterer({
+        map,
+        markers: [],
+        renderer: {
+          render({ count, position }) {
+            const size = count >= 20 ? 56 : count >= 10 ? 48 : 40;
+            const el = document.createElement('div');
+            el.innerHTML = `
+              <div style="
+                width:${size}px;height:${size}px;border-radius:50%;
+                background:linear-gradient(135deg, #6366f1, #3b82f6);
+                color:white;display:flex;align-items:center;justify-content:center;
+                font-weight:700;font-size:${size > 48 ? 16 : 14}px;
+                border:3px solid white;
+                box-shadow:0 4px 12px rgba(99,102,241,0.4);
+                transition:transform 0.2s;
+              ">
+                ${count}
+              </div>
+            `;
+            return new markerLib.AdvancedMarkerElement({ position, content: el });
+          },
+        },
+      });
     }
 
     // Create new markers

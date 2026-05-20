@@ -7,6 +7,7 @@ export interface District {
   center_lat: number;
   center_lng: number;
   zoom_level: number;
+  image_url: string;
   boundary: { lat: number; lng: number }[];
   translations: TranslationMap;
 }

@@ -6,6 +6,7 @@ export const DISTRICTS: District[] = [
     center_lat: 37.5636,
     center_lng: 126.9869,
     zoom_level: 15,
+    image_url: '/districts/myeongdong.jpg',
     boundary: [],
     translations: {
       name: { en: 'Myeongdong', ja: '明洞', zh: '明洞' },
@@ -21,6 +22,7 @@ export const DISTRICTS: District[] = [
     center_lat: 37.5447,
     center_lng: 127.0557,
     zoom_level: 15,
+    image_url: '/districts/seongsu.jpg',
     boundary: [],
     translations: {
       name: { en: 'Seongsu', ja: '聖水', zh: '圣水' },
@@ -36,6 +38,7 @@ export const DISTRICTS: District[] = [
     center_lat: 37.4979,
     center_lng: 127.0276,
     zoom_level: 15,
+    image_url: '/districts/gangnam.jpg',
     boundary: [],
     translations: {
       name: { en: 'Gangnam', ja: '江南', zh: '江南' },
@@ -51,6 +54,7 @@ export const DISTRICTS: District[] = [
     center_lat: 37.5165,
     center_lng: 127.0205,
     zoom_level: 15,
+    image_url: '/districts/sinsa.jpg',
     boundary: [],
     translations: {
       name: { en: 'Sinsa', ja: '新沙', zh: '新沙' },
@@ -66,6 +70,7 @@ export const DISTRICTS: District[] = [
     center_lat: 37.5547,
     center_lng: 126.9707,
     zoom_level: 15,
+    image_url: '/districts/seoul-station.jpg',
     boundary: [],
     translations: {
       name: { en: 'Seoul Station', ja: 'ソウル駅', zh: '首尔站' },
@@ -81,6 +86,7 @@ export const DISTRICTS: District[] = [
     center_lat: 37.5116,
     center_lng: 127.0595,
     zoom_level: 15,
+    image_url: '/districts/coex.jpg',
     boundary: [],
     translations: {
       name: { en: 'COEX', ja: 'COEX/三成駅', zh: 'COEX/三成站' },
