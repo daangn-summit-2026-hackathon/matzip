@@ -38,6 +38,9 @@ importers:
       react-i18next:
         specifier: ^15.0.0
         version: 15.7.4(i18next@24.2.3(typescript@5.9.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.3)
+      yet-another-react-lightbox:
+        specifier: ^3.32.0
+        version: 3.32.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       zustand:
         specifier: ^5.0.0
         version: 5.0.13(@types/react@19.2.14)(react@19.2.6)
@@ -2280,6 +2283,20 @@ packages:
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
 
+  yet-another-react-lightbox@3.32.0:
+    resolution: {integrity: sha512-FWODOMrE07i3O5MeWRcYlcnAUk518zkUYKAe307pVW5pkey3hKMcAIWn8yMIURzGvbd3m9eghWO9CocEZmQPIg==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      '@types/react': ^16 || ^17 || ^18 || ^19
+      '@types/react-dom': ^16 || ^17 || ^18 || ^19
+      react: ^16.8.0 || ^17 || ^18 || ^19
+      react-dom: ^16.8.0 || ^17 || ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
   youch-core@0.3.3:
     resolution: {integrity: sha512-ho7XuGjLaJ2hWHoK8yFnsUGy2Y5uDpqSTq1FkHLK4/oqKtyUU1AFbOOxY4IpC9f0fTLjwYbslUz0Po5BpD1wrA==}
 
@@ -4248,6 +4265,14 @@ snapshots:
   ws@8.18.0: {}
 
   yallist@3.1.1: {}
+
+  yet-another-react-lightbox@3.32.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
+    dependencies:
+      react: 19.2.6
+      react-dom: 19.2.6(react@19.2.6)
+    optionalDependencies:
+      '@types/react': 19.2.14
+      '@types/react-dom': 19.2.3(@types/react@19.2.14)
 
   youch-core@0.3.3:
     dependencies:
