@@ -12,7 +12,7 @@ const DEFAULT_ZOOM = 12;
 const CAMERA_ANIMATION_MS = 380;
 
 export function MapContainer() {
-  const { activeDistrict } = useAppStore();
+  const { activeDistrict, closeBottomSheets } = useAppStore();
   const district = DISTRICTS.find((d) => d.id === activeDistrict);
 
   return (
@@ -24,6 +24,7 @@ export function MapContainer() {
         gestureHandling="greedy"
         disableDefaultUI
         className="w-full h-full"
+        onClick={closeBottomSheets}
       >
         <ClusteredMarkers district={district} />
       </Map>

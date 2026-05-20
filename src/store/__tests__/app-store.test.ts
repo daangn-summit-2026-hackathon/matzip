@@ -48,4 +48,14 @@ describe('bottom sheet state', () => {
     expect(useAppStore.getState().isTagFilterOpen).toBe(true);
     expect(useAppStore.getState().isSearchBottomSheetOpen).toBe(false);
   });
+
+  it('closes every bottom sheet and clears selection', () => {
+    useAppStore.getState().setSelectedRestaurant(restaurant);
+    useAppStore.getState().closeBottomSheets();
+
+    expect(useAppStore.getState().isDetailPanelOpen).toBe(false);
+    expect(useAppStore.getState().isSearchBottomSheetOpen).toBe(false);
+    expect(useAppStore.getState().isTagFilterOpen).toBe(false);
+    expect(useAppStore.getState().selectedRestaurant).toBeNull();
+  });
 });

@@ -36,6 +36,7 @@ interface AppState {
   // UI
   isDetailPanelOpen: boolean;
   setDetailPanelOpen: (open: boolean) => void;
+  closeBottomSheets: () => void;
   isLoading: boolean;
   setLoading: (loading: boolean) => void;
 }
@@ -106,6 +107,13 @@ export const useAppStore = create<AppState>((set) => ({
         : state.isSearchBottomSheetOpen,
       isTagFilterOpen: isDetailPanelOpen ? false : state.isTagFilterOpen,
     })),
+  closeBottomSheets: () =>
+    set({
+      isDetailPanelOpen: false,
+      isSearchBottomSheetOpen: false,
+      isTagFilterOpen: false,
+      selectedRestaurant: null,
+    }),
   isLoading: false,
   setLoading: (isLoading) => set({ isLoading }),
 }));
