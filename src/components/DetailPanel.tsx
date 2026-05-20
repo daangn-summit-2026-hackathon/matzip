@@ -116,11 +116,12 @@ export function DetailPanel() {
   return (
     <div
       ref={sheetRef}
-      className="fixed inset-x-0 top-0 bottom-0 z-50 flex flex-col bg-white rounded-t-2xl shadow-2xl"
+      className="fixed inset-x-0 top-0 z-50 flex flex-col bg-white rounded-t-2xl shadow-2xl"
       style={{
         transform: `translateY(${translateY}px)`,
-        transition: isAnimating ? 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)' : 'none',
-        willChange: 'transform',
+        height: `calc(100dvh - ${translateY}px)`,
+        transition: isAnimating ? 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1), height 0.35s cubic-bezier(0.32, 0.72, 0, 1)' : 'none',
+        willChange: 'transform, height',
       }}
       onTransitionEnd={() => setIsAnimating(false)}
     >
