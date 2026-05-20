@@ -45,6 +45,9 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.0.0
         version: 4.3.0(vite@6.4.2(jiti@2.7.0)(lightningcss@1.32.0))
+      '@types/google.maps':
+        specifier: ^3.64.1
+        version: 3.64.1
       '@types/react':
         specifier: ^19.0.0
         version: 19.2.14
