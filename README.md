@@ -143,6 +143,170 @@ Construction Phase (구현)
 
 ---
 
+## AWS 프로덕션 아키텍처 (확장 계획)
+
+현재는 해커톤 MVP로 Cloudflare + Supabase 무료 티어를 사용하고 있지만, 실제 프로덕션 서비스로 전환 시 AWS Well-Architected Framework의 6개 Pillar에 맞춰 다음과 같이 설계합니다.
+
+### 전체 아키텍처
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         Amazon CloudFront (CDN)                       │
+│                    글로벌 엣지 300+ PoP, 한국 리전 캐싱                   │
+└────────────┬────────────────────────────┬───────────────────────────┘
+             │ Static Assets              │ API Requests (/api/*)
+             ▼                            ▼
+┌────────────────────────┐   ┌────────────────────────────────────────┐
+│      Amazon S3          │   │         Amazon API Gateway (REST)       │
+│   (SPA 정적 호스팅)      │   │   + AWS WAF (DDoS/Bot 방어)             │
+└────────────────────────┘   └────────────────────┬───────────────────┘
+                                                   │
+                              ┌─────────────────────┼─────────────────────┐
+                              ▼                     ▼                     ▼
+                 ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
+                 │  AWS Lambda       │  │  AWS Lambda       │  │  AWS Lambda       │
+                 │  (맛집 조회)       │  │  (검색)           │  │  (사진 처리)       │
+                 └────────┬─────────┘  └────────┬─────────┘  └────────┬─────────┘
+                          │                     │                     │
+                          ▼                     ▼                     ▼
+             ┌──────────────────────────────────────────────────────────────────┐
+             │                    Amazon Aurora Serverless v2                     │
+             │              (PostgreSQL 호환, Auto Scaling 0→ACU)                 │
+             └──────────────────────────────────────────────────────────────────┘
+                          │                                          │
+                          ▼                                          ▼
+             ┌──────────────────────┐                   ┌──────────────────────┐
+             │  Amazon ElastiCache   │                   │      Amazon S3        │
+             │  (Redis - 쿼리 캐시)   │                   │  (이미지 원본 저장)    │
+             └──────────────────────┘                   └──────────┬───────────┘
+                                                                   │
+                                                                   ▼
+                                                        ┌──────────────────────┐
+                                                        │  CloudFront + S3      │
+                                                        │  (이미지 CDN 배포)     │
+                                                        └──────────────────────┘
+```
+
+### Pillar 1: 운영 우수성 (Operational Excellence)
+
+| 서비스 | 역할 | 설계 근거 |
+|--------|------|-----------|
+| AWS CDK / CloudFormation | IaC (Infrastructure as Code) | 인프라 변경 이력 관리, 환경 복제 용이 |
+| Amazon CloudWatch | 로그 수집 + 메트릭 + 알람 | Lambda 실행 로그, API 지연시간, 에러율 모니터링 |
+| AWS X-Ray | 분산 추적 | API Gateway → Lambda → Aurora 전 구간 추적 |
+| AWS Systems Manager Parameter Store | 환경변수/시크릿 관리 | API 키, DB 연결 정보 안전 관리 |
+| Amazon EventBridge | 이벤트 기반 자동화 | 데이터 변경 시 캐시 무효화, 알림 트리거 |
+
+**핵심 전략**: 서버리스 우선으로 운영 부담 최소화. CloudWatch Alarm + SNS로 장애 자동 알림.
+
+### Pillar 2: 보안 (Security)
+
+| 서비스 | 역할 | 설계 근거 |
+|--------|------|-----------|
+| AWS WAF | 웹 방화벽 | SQL Injection, XSS, Bot 트래픽 차단 |
+| Amazon Cognito | 사용자 인증 (향후) | 리뷰/즐겨찾기 기능 추가 시 소셜 로그인 |
+| AWS IAM | 최소 권한 원칙 | Lambda별 필요한 리소스만 접근 허용 |
+| AWS Secrets Manager | 시크릿 로테이션 | DB 비밀번호, API 키 자동 교체 |
+| AWS Shield Standard | DDoS 방어 | CloudFront 연동 시 자동 적용 |
+| S3 Bucket Policy | 이미지 접근 제어 | CloudFront OAC(Origin Access Control)로만 접근 허용 |
+
+**핵심 전략**: Zero Trust 모델. 모든 API 요청은 WAF → API Gateway → Lambda 순으로 검증. 데이터 암호화 at rest (Aurora, S3) + in transit (TLS 1.3).
+
+### Pillar 3: 안정성 (Reliability)
+
+| 서비스 | 역할 | 설계 근거 |
+|--------|------|-----------|
+| Aurora Serverless v2 | Multi-AZ 자동 장애 조치 | 단일 AZ 장애 시 자동 페일오버 (RPO=0, RTO<30초) |
+| Lambda | 자동 재시도 + 동시성 관리 | 실패 시 최대 2회 재시도, Reserved Concurrency로 과부하 방지 |
+| CloudFront | Origin Failover | S3 원본 장애 시 보조 버킷으로 자동 전환 |
+| Route 53 | Health Check + DNS Failover | 엔드포인트 헬스체크, 장애 시 정적 에러 페이지로 라우팅 |
+| S3 Cross-Region Replication | 이미지 재해 복구 | ap-northeast-2 → ap-southeast-1 복제 |
+
+**핵심 전략**: 서버리스 아키텍처로 단일 장애점(SPOF) 제거. Aurora Multi-AZ + S3 11 nines 내구성으로 데이터 손실 방지.
+
+### Pillar 4: 성능 효율성 (Performance Efficiency)
+
+| 서비스 | 역할 | 설계 근거 |
+|--------|------|-----------|
+| CloudFront | 정적 자산 + API 응답 캐싱 | 한국/일본/중국 엣지에서 <50ms 응답 |
+| ElastiCache (Redis) | 쿼리 결과 캐싱 | 구역별 맛집 목록 캐시 (TTL 5분), DB 부하 90% 감소 |
+| Lambda@Edge | 언어 감지 + 라우팅 | Accept-Language 헤더 기반 최적 응답 |
+| Aurora Serverless v2 | Auto Scaling ACU | 트래픽에 따라 0.5~8 ACU 자동 조절 |
+| S3 + CloudFront | 이미지 최적화 배포 | WebP 변환 + 리사이징 (Lambda@Edge), Cache-Control 1년 |
+| API Gateway Caching | API 응답 캐싱 | 동일 구역 조회 요청 캐싱 (TTL 60초) |
+
+**핵심 전략**: 3-tier 캐싱 (CloudFront Edge → API Gateway → ElastiCache). 한국/일본/중국 사용자 모두 <100ms 응답 목표.
+
+### Pillar 5: 비용 최적화 (Cost Optimization)
+
+| 서비스 | 과금 모델 | 예상 비용 (MAU 10만 기준) |
+|--------|-----------|--------------------------|
+| CloudFront | 데이터 전송량 | ~$5/월 (50GB 전송) |
+| S3 | 저장량 + 요청 수 | ~$1/월 (5GB 이미지) |
+| Lambda | 요청 수 + 실행 시간 | ~$3/월 (100만 요청, 128MB, 100ms) |
+| Aurora Serverless v2 | ACU-시간 | ~$15/월 (평균 0.5 ACU) |
+| ElastiCache | 노드 시간 | ~$12/월 (cache.t4g.micro) |
+| API Gateway | 요청 수 | ~$3.50/월 (100만 요청) |
+| **합계** | | **~$40/월** |
+
+**비용 절감 전략**:
+- Aurora Serverless v2: 트래픽 없을 때 0 ACU로 스케일 다운 (야간 비용 절감)
+- Lambda: 128MB 메모리로 충분 (단순 CRUD), Graviton2(ARM) 런타임으로 20% 절감
+- CloudFront: 캐시 적중률 90%+ 유지로 Origin 요청 최소화
+- S3 Intelligent-Tiering: 접근 빈도 낮은 이미지 자동 계층 이동
+- Reserved Capacity: ElastiCache 1년 예약 시 40% 할인
+
+**MVP → AWS 전환 시 비용 비교**:
+| 단계 | 월 비용 | MAU |
+|------|---------|-----|
+| MVP (현재) | $0 | ~1,000 |
+| AWS 초기 | ~$40 | ~100,000 |
+| AWS 성장기 | ~$120 | ~500,000 |
+
+### Pillar 6: 지속 가능성 (Sustainability)
+
+| 전략 | 구현 방법 |
+|------|-----------|
+| 서버리스 우선 | Lambda + Aurora Serverless → 유휴 시 리소스 0 소비 |
+| Graviton 프로세서 | Lambda ARM64 런타임 → x86 대비 60% 에너지 효율 |
+| 캐싱 극대화 | CloudFront + ElastiCache → 불필요한 컴퓨팅 반복 제거 |
+| 이미지 최적화 | WebP + 적응형 리사이징 → 네트워크 전송량 70% 감소 |
+| 리전 선택 | ap-northeast-2 (서울) → 사용자 근접 배치로 네트워크 홉 최소화 |
+
+---
+
+### AWS 전환 마이그레이션 경로
+
+```
+Phase 1: 정적 호스팅 전환 (Day 1)
+  Cloudflare Workers → S3 + CloudFront
+  - S3 버킷 생성, dist/ 업로드
+  - CloudFront 배포 생성, OAC 설정
+  - Route 53 도메인 연결
+
+Phase 2: 데이터베이스 전환 (Day 2-3)
+  Supabase PostgreSQL → Aurora Serverless v2
+  - pg_dump로 데이터 export
+  - Aurora 클러스터 생성 (ap-northeast-2)
+  - 스키마 + 데이터 import
+  - 연결 문자열 업데이트
+
+Phase 3: API 레이어 구축 (Day 3-5)
+  Supabase REST API → API Gateway + Lambda
+  - Lambda 함수 작성 (Node.js 20, ARM64)
+  - API Gateway REST API 생성
+  - 엔드포인트 매핑: GET /restaurants, GET /photos, GET /menu-items
+  - WAF 연동
+
+Phase 4: 캐싱 + 최적화 (Day 5-7)
+  - ElastiCache Redis 클러스터 생성
+  - Lambda에 캐시 로직 추가
+  - CloudFront 캐시 정책 최적화
+  - 이미지 최적화 파이프라인 (S3 + Lambda@Edge)
+```
+
+---
+
 ## 로컬 개발 환경 설정
 
 ```bash
