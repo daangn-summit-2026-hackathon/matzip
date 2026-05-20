@@ -16,7 +16,7 @@ export function DistrictNavigationBar() {
   };
 
   return (
-    <div className="flex gap-2 px-4 py-2 overflow-x-auto scrollbar-hide">
+    <div className="flex gap-2 px-4 py-1 overflow-x-auto scrollbar-hide">
       {DISTRICTS.map((district) => {
         const isActive = activeDistrict === district.id;
         const count = districtCounts[district.id] ?? 0;
@@ -26,18 +26,22 @@ export function DistrictNavigationBar() {
             key={district.id}
             whileTap={{ scale: 0.95 }}
             onClick={() => handleSelect(district.id)}
-            className={`flex items-center justify-center px-4 rounded-full whitespace-nowrap min-h-[44px] transition-colors shadow-sm ${
+            className={`flex flex-col items-center justify-center px-4 rounded-full whitespace-nowrap min-h-[44px] transition-colors border shadow-md ${
               isActive
-                ? 'bg-blue-600 text-white gap-1.5 py-1.5'
-                : 'bg-white/95 backdrop-blur text-gray-700 hover:bg-white py-2'
+                ? 'bg-blue-600 text-white py-1.5 border-blue-700'
+                : 'bg-white text-gray-700 hover:bg-gray-50 py-2 border-gray-200'
             }`}
           >
-            <span className={isActive ? 'text-xs font-semibold' : 'text-sm font-medium'}>
-              {t(district.translations, 'name', language)}
-            </span>
-            {isActive && (
-              <span className="text-[10px] leading-tight opacity-80">
-                📍{count}
+            {isActive ? (
+              <>
+                <span className="text-lg font-bold leading-tight">📍{count}</span>
+                <span className="text-[10px] font-medium leading-none opacity-80">
+                  {t(district.translations, 'name', language)}
+                </span>
+              </>
+            ) : (
+              <span className="text-sm font-medium">
+                {t(district.translations, 'name', language)}
               </span>
             )}
           </motion.button>

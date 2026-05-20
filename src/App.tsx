@@ -75,13 +75,13 @@ export default function App() {
       </div>
 
       {/* Floating Header */}
-      <div className="absolute top-0 left-0 right-0 z-20 pointer-events-none">
-        <header className="flex items-center gap-3 px-4 pt-[env(safe-area-inset-top,12px)] pb-2 pointer-events-auto">
+      <div className="absolute top-0 left-0 right-0 z-20 pointer-events-none p-4 pt-[env(safe-area-inset-top,16px)]">
+        <header className="flex items-center gap-3 px-4 py-2.5 bg-white rounded-2xl border border-gray-200 shadow-lg pointer-events-auto">
           <SearchBar />
           <LanguageSwitcher />
         </header>
 
-        <nav className="pointer-events-auto">
+        <nav className="mt-2 pointer-events-auto">
           <DistrictNavigationBar />
         </nav>
       </div>
@@ -93,7 +93,7 @@ export default function App() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute top-28 left-4 right-4 bg-white/95 backdrop-blur rounded-lg p-3 shadow-md z-10"
+            className="absolute top-32 left-4 right-4 bg-white rounded-xl p-3 shadow-lg border border-gray-200 z-10"
           >
             <p className="text-sm text-gray-700">
               {t(district.translations, 'description', language)}
@@ -117,7 +117,7 @@ export default function App() {
       {activeDistrict && (
         <button
           onClick={() => setTagFilterOpen(true)}
-          className="absolute bottom-6 right-4 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center z-10 active:scale-95 transition-transform"
+          className="absolute bottom-6 right-4 w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center z-10 active:scale-95 transition-transform"
           aria-label="Filter by tags"
         >
           <span className="text-xl">🏷️</span>

@@ -4,6 +4,7 @@ import { useAppStore } from '@/store/app-store';
 import { DISTRICTS } from '@/constants/districts';
 import { filterByTags } from '@/services/search.service';
 import { t } from '@/lib/translate';
+import { RestaurantPin } from './RestaurantPin';
 
 const SEOUL_CENTER = { lat: 37.5665, lng: 126.978 };
 const DEFAULT_ZOOM = 12;
@@ -47,14 +48,21 @@ export function MapContainer() {
           if (e.map && !mapRef.current) mapRef.current = e.map;
         }}
       >
-        {visibleRestaurants.map((restaurant) => (
-          <AdvancedMarker
-            key={restaurant.id}
-            position={{ lat: restaurant.lat, lng: restaurant.lng }}
-            title={t(restaurant.translations, 'name', language)}
-            onClick={() => setSelectedRestaurant(restaurant)}
-          />
-        ))}
+        {visibleRestaurants.map((restaurant) => {
+          // Use first photo URL from translations or undefined
+          const photoUrl = restaurant.translations?.photo_url?.en ?? undefined;
+
+          return (
+            <AdvancedMarker
+              key={restaurant.id}
+              position={{ lat: restaurant.lat, lng: restaurant.lng }}
+              title={t(restaurant.translations, 'name', language)}
+              onClick={() => setSelectedRestaurant(restaurant)}
+            >
+              <RestaurantPin photoUrl={photoUrl} />
+            </AdvancedMarker>
+          );
+        })}
       </Map>
     </APIProvider>
   );
