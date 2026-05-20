@@ -34,10 +34,10 @@ export function DistrictNavigationBar() {
           >
             {isActive ? (
               <>
-                <span className="text-lg font-bold leading-tight">📍{count}</span>
-                <span className="text-[10px] font-medium leading-none opacity-80">
+                <span className="text-[11px] font-medium leading-none">
                   {t(district.translations, 'name', language)}
                 </span>
+                <span className="text-xs font-semibold leading-none opacity-80">📍{count}</span>
               </>
             ) : (
               <span className="text-sm font-medium">

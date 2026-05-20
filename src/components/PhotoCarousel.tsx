@@ -35,11 +35,7 @@ export function PhotoCarousel({ restaurantId }: { restaurantId: string }) {
   };
 
   if (photos.length === 0) {
-    return (
-      <div className="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center">
-        <span className="text-gray-400 text-4xl">🍽️</span>
-      </div>
-    );
+    return null;
   }
 
   if (photos.length === 1) {
