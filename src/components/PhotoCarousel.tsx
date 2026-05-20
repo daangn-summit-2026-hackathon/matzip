@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { X } from 'lucide-react';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 import { fetchRestaurantPhotos } from '@/services/data.service';
@@ -76,9 +77,9 @@ export function PhotoCarousel({ restaurantId }: { restaurantId: string }) {
             type="button"
             aria-label="Close gallery"
             onClick={() => setIsLightboxOpen(false)}
-            className="fixed left-4 top-[calc(env(safe-area-inset-top)+1rem)] z-[10001] flex h-11 w-11 items-center justify-center rounded-full bg-black/60 text-lg font-medium text-white shadow-lg backdrop-blur transition-colors hover:bg-black/75 focus:outline-none focus:ring-2 focus:ring-white/80"
+            className="fixed left-4 top-[calc(env(safe-area-inset-top)+1rem)] z-[10001] flex h-11 w-11 items-center justify-center rounded-full bg-black/60 text-white shadow-lg backdrop-blur transition-colors hover:bg-black/75 focus:outline-none focus:ring-2 focus:ring-white/80"
           >
-            X
+            <X aria-hidden="true" size={24} strokeWidth={2.25} />
           </button>
         ),
       }}
