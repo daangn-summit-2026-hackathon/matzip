@@ -129,15 +129,15 @@ export function SearchBottomSheet() {
       }}
       onTransitionEnd={() => setIsAnimating(false)}
     >
-      {/* 드래그 핸들 영역 */}
+      {/* 드래그 핸들 영역 (넓은 터치 영역) */}
       <div
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
-        className="cursor-grab active:cursor-grabbing shrink-0 touch-none select-none"
+        className="cursor-grab active:cursor-grabbing shrink-0 touch-none select-none pt-4 pb-6"
       >
-        <div className="flex justify-center pt-3 pb-2">
+        <div className="flex justify-center">
           <div className="w-10 h-1.5 bg-gray-300 rounded-full" />
         </div>
       </div>

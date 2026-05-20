@@ -124,17 +124,28 @@ export function DetailPanel() {
       }}
       onTransitionEnd={() => setIsAnimating(false)}
     >
-      {/* 드래그 핸들 영역 */}
+      {/* 드래그 핸들 영역 (핸들 + 제목까지 넓은 터치 영역) */}
       <div
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
-        className="cursor-grab active:cursor-grabbing shrink-0 touch-none select-none"
+        className="cursor-grab active:cursor-grabbing shrink-0 touch-none select-none pt-4 pb-3"
       >
-        <div className="flex justify-center pt-3 pb-2">
+        <div className="flex justify-center mb-3">
           <div className="w-10 h-1.5 bg-gray-300 rounded-full" />
         </div>
+        {selectedRestaurant && (
+          <div className="flex items-center justify-between px-4">
+            <h2 className="text-xl font-bold">
+              {t(selectedRestaurant.translations, 'name', language)}
+            </h2>
+            <RatingDisplay
+              rating={selectedRestaurant.rating}
+              ratingCount={selectedRestaurant.rating_count}
+            />
+          </div>
+        )}
       </div>
 
       {/* 스크롤 콘텐츠 영역 */}
@@ -150,17 +161,6 @@ export function DetailPanel() {
           <div className="px-4 pb-6 space-y-4">
             {/* Photos */}
             <PhotoCarousel restaurantId={selectedRestaurant.id} />
-
-            {/* Name & Rating */}
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold">
-                {t(selectedRestaurant.translations, 'name', language)}
-              </h2>
-              <RatingDisplay
-                rating={selectedRestaurant.rating}
-                ratingCount={selectedRestaurant.rating_count}
-              />
-            </div>
 
             {/* Address */}
             <p className="text-sm text-gray-500">
