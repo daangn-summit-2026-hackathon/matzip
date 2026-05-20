@@ -16,7 +16,6 @@ graph LR
     subgraph Supabase["Supabase (Free Tier)"]
         API["PostgREST API"]
         DB["PostgreSQL"]
-        Storage["Storage (Photos)"]
     end
 
     subgraph Google["Google Cloud"]
@@ -28,7 +27,6 @@ graph LR
     Worker -->|index.html, JS, CSS| Browser
     Browser -->|REST API| API
     API --> DB
-    Browser -->|Image URLs| Storage
     Browser -->|Map tiles + SDK| Maps
 ```
 
@@ -38,8 +36,7 @@ graph LR
 |---------|----------|------|---------|
 | Frontend Hosting | Cloudflare Workers | Free (100K req/day) | SPA 정적 파일 서빙 |
 | DNS | Cloudflare | Free | 도메인 관리 + 프록시 |
-| Database | Supabase PostgreSQL | Free (500MB) | 레스토랑, 사진, 메뉴 데이터 |
-| File Storage | Supabase Storage | Free (1GB) | 레스토랑 사진 |
+| Database | Supabase PostgreSQL | Free (500MB) | 레스토랑, 사진 URL, 메뉴 데이터 |
 | Map | Google Maps Platform | Free ($200/month credit) | 지도 렌더링 |
 
 ## Cloudflare Workers Configuration
@@ -136,10 +133,8 @@ CREATE POLICY "Public read" ON menu_items FOR SELECT USING (true);
 
 ### Storage Bucket
 ```
-Bucket: restaurant-photos
-  - Public access: enabled (공개 URL로 이미지 접근)
-  - File size limit: 5MB
-  - Allowed MIME types: image/jpeg, image/png, image/webp
+사진은 외부 URL을 restaurant_photos 테이블의 url 컬럼에 직접 저장합니다.
+Supabase Storage는 사용하지 않습니다.
 ```
 
 ## Google Maps Configuration
@@ -194,7 +189,6 @@ https://matzip-map.[account].workers.dev
 |---------|----------------|----------------|------|
 | Cloudflare Workers | 100K req/day | ~1K req/day | $0 |
 | Supabase DB | 500MB | ~10MB | $0 |
-| Supabase Storage | 1GB | ~100MB (photos) | $0 |
 | Supabase API | 500K req/month | ~10K req/month | $0 |
 | Google Maps | $200 credit/month | ~1K loads/month | $0 |
 | **Total** | | | **$0** |

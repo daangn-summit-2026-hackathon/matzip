@@ -34,7 +34,6 @@ graph TB
     
     subgraph Backend["Supabase"]
         DB["PostgreSQL"]
-        Storage["Storage (photos)"]
     end
     
     subgraph External["External"]
@@ -45,7 +44,6 @@ graph TB
     UILayer --> StateLayer
     StateLayer --> ServiceLayer
     ServiceLayer --> DB
-    ServiceLayer --> Storage
     Map --> GMaps
     Worker --> Assets
     Assets --> Browser
@@ -58,8 +56,7 @@ graph TB
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
 | Static Hosting | Cloudflare Workers + Assets | SPA 배포, 글로벌 엣지 |
-| Database | Supabase PostgreSQL | 레스토랑, 사진, 메뉴 데이터 |
-| File Storage | Supabase Storage | 레스토랑 사진 저장 |
+| Database | Supabase PostgreSQL | 레스토랑, 사진 URL, 메뉴 데이터 |
 | Map Platform | Google Maps JavaScript API | 지도 렌더링, 마커, 클러스터링 |
 | DNS/CDN | Cloudflare | 도메인 관리, 엣지 캐싱 |
 
@@ -141,6 +138,5 @@ Development:
 |------|-------|-----|
 | Worker 요청 수 | Cloudflare Dashboard | 자동 |
 | DB 쿼리 수/시간 | Supabase Dashboard | 자동 |
-| Storage 사용량 | Supabase Dashboard | 자동 |
 | Maps API 사용량 | Google Cloud Console | 자동 |
 | 에러 | 브라우저 콘솔 | 수동 확인 |

@@ -2,6 +2,8 @@
 
 > 한국을 방문하는 외국인 관광객을 위한 현지인 추천 맛집 지도 앱
 
+### 👉 [지금 바로 사용해보기 → matzip.coldot-sub-1.workers.dev](https://matzip.coldot-sub-1.workers.dev/)
+
 ## 프로젝트 소개
 
 올해 1분기에만 방한객이 **476만명**으로, 역대 최대 규모의 외국인들이 한국에 들어오고 있습니다.
@@ -60,7 +62,7 @@
 | Map | Google Maps (@vis.gl/react-google-maps) | 외국인에게 친숙한 인터페이스 |
 | Animation | Motion (Framer Motion) | 선언적 애니메이션, 제스처 |
 | i18n | react-i18next | 동적 언어 전환 |
-| Backend | Supabase (PostgreSQL + Storage) | 서버리스 BaaS, 자동 REST API |
+| Backend | Supabase (PostgreSQL + REST API) | 서버리스 BaaS, 자동 REST API |
 | Hosting | Cloudflare Workers | 글로벌 엣지 배포, 아시아 최적화 |
 | Design System | Seed Design | 일관된 UI 컴포넌트 |
 
@@ -82,10 +84,10 @@
                ▼
 ┌──────────────────────────────────────────────────────────┐
 │                     Supabase (Free Tier)                   │
-├──────────────────┬──────────────────┬────────────────────┤
-│   PostgreSQL DB   │   REST API       │   Storage (사진)    │
-│   (맛집/메뉴 데이터) │   (자동 생성)     │   (맛집 사진)       │
-└──────────────────┴──────────────────┴────────────────────┘
+├──────────────────────────────┬───────────────────────────┤
+│       PostgreSQL DB           │       PostgREST API        │
+│   (맛집/메뉴/사진URL 데이터)    │       (자동 생성)          │
+└──────────────────────────────┴───────────────────────────┘
 ```
 
 ### 핵심 설계 결정
@@ -93,6 +95,7 @@
 - **JSONB 번역 패턴**: 각 테이블에 `translations` JSONB 컬럼 하나로 모든 다국어 데이터 저장 → JOIN 없이 단일 쿼리로 조회
 - **하드코딩 상수**: 구역(District)과 태그(Tag)는 변경 빈도가 낮아 코드에 상수로 관리 → DB 쿼리 절약, 초기 로드 최적화
 - **서버리스 아키텍처**: 별도 백엔드 서버 없이 Supabase Client SDK로 직접 쿼리 → 인프라 비용 $0
+- **외부 이미지 URL**: 사진은 외부 URL을 DB에 저장하여 Storage 비용 없이 운영
 
 ---
 
@@ -134,7 +137,7 @@ Construction Phase (구현)
 |--------|-----------|-------------|---------|
 | Cloudflare Workers | 10만 req/일 | ~1천 req/일 | $0 |
 | Supabase DB | 500MB | ~10MB | $0 |
-| Supabase Storage | 1GB | ~100MB | $0 |
+| Supabase API | 50만 req/월 | ~1만 req/월 | $0 |
 | Google Maps | $200 크레딧/월 | ~1천 로드/월 | $0 |
 | **합계** | | | **$0** |
 
@@ -159,9 +162,3 @@ pnpm build
 # 배포 (Cloudflare Workers)
 pnpm deploy
 ```
-
----
-
-## 라이선스
-
-이 프로젝트는 해커톤 제출용으로 개발되었습니다.

@@ -33,7 +33,7 @@
 
 | Service | Setup Required |
 |---------|---------------|
-| Supabase | Create project, run migration SQL, create storage bucket |
+| Supabase | Create project, run migration SQL |
 | Google Maps | Enable API, create key with referrer restriction, create Map ID |
 | Cloudflare | `wrangler login`, then `pnpm deploy` |
 
@@ -41,7 +41,6 @@
 
 - [ ] Supabase project created (ap-northeast-2)
 - [ ] Migration SQL executed
-- [ ] Storage bucket `restaurant-photos` created (public)
 - [ ] Google Maps API key created with domain restriction
 - [ ] Google Maps Map ID created
 - [ ] `.env.local` filled with all credentials

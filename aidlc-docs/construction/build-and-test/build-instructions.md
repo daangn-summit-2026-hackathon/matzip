@@ -47,8 +47,8 @@ pnpm deploy
 1. Create a new Supabase project (ap-northeast-2 region)
 2. Run the migration SQL in Supabase SQL Editor:
    - `supabase/migrations/001_initial_schema.sql`
-3. Create a Storage bucket named `restaurant-photos` (public access)
-4. Copy the project URL and anon key to `.env.local`
+3. Copy the project URL and anon key to `.env.local`
+4. Add restaurant data via Table Editor (photos are stored as external URLs in the `url` column)
 
 ## Google Maps Setup
 
