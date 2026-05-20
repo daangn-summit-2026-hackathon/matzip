@@ -125,16 +125,53 @@ function createMarker(
   language: 'en' | 'ja' | 'zh',
   onSelect: (r: Restaurant) => void,
 ): google.maps.marker.AdvancedMarkerElement {
-  const photoUrl = restaurant.translations?.photo_url?.en;
+  const rating = restaurant.rating;
+  const ratingCount = restaurant.rating_count;
 
-  // Create pin content
+  // Determine color based on rating
+  let bgColor: string;
+  let textColor: string;
+  if (rating !== null && ratingCount >= 3 && rating >= 4.5) {
+    bgColor = '#16a34a'; // green-600
+    textColor = '#ffffff';
+  } else if (rating !== null && ratingCount >= 3 && rating >= 4.0) {
+    bgColor = '#86efac'; // green-300
+    textColor = '#166534';
+  } else {
+    bgColor = '#fde047'; // yellow-300
+    textColor = '#713f12';
+  }
+
+  // Display text
+  const displayText = rating !== null && ratingCount >= 3
+    ? rating.toFixed(1)
+    : '★';
+
   const content = document.createElement('div');
-  content.className = 'flex flex-col items-center cursor-pointer';
   content.innerHTML = `
-    <div style="width:40px;height:40px;border-radius:50%;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);overflow:hidden;background:#e5e7eb;">
-      <img src="${photoUrl || '/icon.png'}" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='/icon.png'" />
+    <div style="
+      display:flex;flex-direction:column;align-items:center;cursor:pointer;
+    ">
+      <div style="
+        min-width:32px;height:28px;border-radius:14px;
+        background:${bgColor};color:${textColor};
+        display:flex;align-items:center;justify-content:center;
+        font-weight:700;font-size:12px;
+        padding:0 8px;
+        border:2px solid white;
+        box-shadow:0 2px 6px rgba(0,0,0,0.25);
+      ">
+        ${displayText}
+      </div>
+      <div style="
+        width:0;height:0;
+        border-left:5px solid transparent;
+        border-right:5px solid transparent;
+        border-top:6px solid white;
+        margin-top:-1px;
+        filter:drop-shadow(0 1px 1px rgba(0,0,0,0.1));
+      "></div>
     </div>
-    <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid white;margin-top:-1px;filter:drop-shadow(0 1px 1px rgba(0,0,0,0.1));"></div>
   `;
 
   const marker = new markerLib.AdvancedMarkerElement({
