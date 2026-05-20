@@ -5,6 +5,7 @@
   },
   "search": {
     "placeholder": "Search restaurants, cuisine...",
+    "results": "Search results",
     "noResults": "No results found",
     "mapUnavailable": "Map view temporarily unavailable"
   },

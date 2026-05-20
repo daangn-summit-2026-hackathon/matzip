@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Tags } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAppStore } from '@/store/app-store';
 import { fetchRestaurantsByDistrict, fetchRestaurantCountsByDistrict } from '@/services/data.service';
@@ -10,12 +11,14 @@ import { DetailPanel } from '@/components/DetailPanel';
 import { TagFilterPanel } from '@/components/TagFilterPanel';
 import { SearchBar } from '@/components/SearchBar';
 import { SearchBottomSheet } from '@/components/SearchBottomSheet';
+import { DistrictBottomSheet } from '@/components/DistrictBottomSheet';
 
 import type { SupportedLanguage } from '@/types';
 
 export default function App() {
   const {
     activeDistrict,
+    isSearchActive,
     setRestaurants,
     setDistrictCounts,
     setLoading,
@@ -81,7 +84,7 @@ export default function App() {
       </div>
 
       {/* Select District Prompt */}
-      {!activeDistrict && (
+      {!activeDistrict && !isSearchActive && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="bg-white/90 backdrop-blur rounded-xl px-6 py-4 shadow-lg">
             <p className="text-gray-600 text-sm font-medium">
@@ -98,13 +101,14 @@ export default function App() {
           className="absolute bottom-6 right-4 w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center z-10 active:scale-95 transition-transform"
           aria-label="Filter by tags"
         >
-          <span className="text-xl">🏷️</span>
+          <Tags className="h-5 w-5 text-gray-700" aria-hidden="true" />
         </button>
       )}
 
       {/* Overlays */}
       <DetailPanel />
       <TagFilterPanel />
+      <DistrictBottomSheet />
       <SearchBottomSheet />
     </div>
   );

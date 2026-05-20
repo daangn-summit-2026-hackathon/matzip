@@ -5,6 +5,7 @@
   },
   "search": {
     "placeholder": "搜索餐厅、美食...",
+    "results": "搜索结果",
     "noResults": "未找到结果",
     "mapUnavailable": "地图视图暂时不可用"
   },

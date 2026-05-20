@@ -18,6 +18,7 @@ export function DistrictNavigationBar() {
     activeDistrict,
     isDetailPanelOpen,
     setActiveDistrict,
+    setDistrictBottomSheetOpen,
     setDetailPanelOpen,
   } = useAppStore();
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -67,8 +68,9 @@ export function DistrictNavigationBar() {
               <motion.section
                 layoutId={`district-surface-${selectedDistrict.id}`}
                 transition={heroTransition}
-                className="relative h-[124px] w-full overflow-hidden rounded-[28px] shadow-lg shadow-gray-900/12"
+                className="relative h-[124px] w-full cursor-pointer overflow-hidden rounded-[28px] shadow-lg shadow-gray-900/12"
                 aria-label={t(selectedDistrict.translations, 'name', language)}
+                onClick={() => setDistrictBottomSheetOpen(true)}
               >
                 <motion.div
                   layoutId={`district-image-${selectedDistrict.id}`}
@@ -97,7 +99,10 @@ export function DistrictNavigationBar() {
                 <div className="relative z-10 flex h-full items-center gap-3.5 px-4 text-gray-950">
                   <motion.button
                     type="button"
-                    onClick={() => updateDistrict(null)}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      updateDistrict(null);
+                    }}
                     disabled={isTransitioning}
                     className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/80 bg-white/78 text-2xl leading-none text-gray-950 shadow-md shadow-gray-900/10 backdrop-blur-md transition-colors hover:bg-white/92 active:bg-white"
                     aria-label="Back to district list"

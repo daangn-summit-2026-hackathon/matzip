@@ -1,19 +1,24 @@
 import { APIProvider, Map, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { useAppStore } from '@/store/app-store';
 import { DISTRICTS } from '@/constants/districts';
+import { getRestaurantRatingStyle } from '@/lib/rating-style';
 import { filterByTags } from '@/services/search.service';
 import { t } from '@/lib/translate';
 import type { Restaurant } from '@/types';
 
 const SEOUL_CENTER = { lat: 37.5665, lng: 126.978 };
 const DEFAULT_ZOOM = 12;
+const SINGLE_SEARCH_RESULT_ZOOM = 16;
+const SELECTED_RESTAURANT_ZOOM = 17;
 const CAMERA_ANIMATION_MS = 380;
 
 export function MapContainer() {
-  const { activeDistrict, closeBottomSheets } = useAppStore();
-  const district = DISTRICTS.find((d) => d.id === activeDistrict);
+  const { activeDistrict, closeBottomSheets, isSearchActive } = useAppStore();
+  const district = isSearchActive
+    ? undefined
+    : DISTRICTS.find((d) => d.id === activeDistrict);
 
   return (
     <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY ?? ''}>
@@ -37,6 +42,11 @@ function ClusteredMarkers({ district }: { district: typeof DISTRICTS[number] | u
   const markerLib = useMapsLibrary('marker');
   const {
     restaurants,
+    searchResults,
+    isSearchActive,
+    isSearchBottomSheetOpen,
+    isDetailPanelOpen,
+    selectedRestaurant,
     selectedTags,
     setSelectedRestaurant,
     language,
@@ -46,16 +56,28 @@ function ClusteredMarkers({ district }: { district: typeof DISTRICTS[number] | u
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const cancelCameraAnimationRef = useRef<(() => void) | null>(null);
 
-  const visibleRestaurants = filterByTags(restaurants, selectedTags);
+  const visibleRestaurants = useMemo(
+    () => (isSearchActive ? searchResults : filterByTags(restaurants, selectedTags)),
+    [isSearchActive, restaurants, searchResults, selectedTags],
+  );
 
-  // Pan to district when selected
+  // Pan to the most specific active district context.
   useEffect(() => {
-    if (!map) return;
+    if (!map || isSearchActive) return;
 
     cancelCameraAnimationRef.current?.();
     cancelCameraAnimationRef.current = null;
 
-    if (district) {
+    if (selectedRestaurant) {
+      cancelCameraAnimationRef.current = focusRestaurantInView(
+        map,
+        selectedRestaurant,
+        {
+          isDetailPanelOpen,
+          maxZoom: SELECTED_RESTAURANT_ZOOM,
+        },
+      );
+    } else if (district) {
       cancelCameraAnimationRef.current = animateMapCamera(
         map,
         { lat: district.center_lat, lng: district.center_lng },
@@ -73,7 +95,36 @@ function ClusteredMarkers({ district }: { district: typeof DISTRICTS[number] | u
       cancelCameraAnimationRef.current?.();
       cancelCameraAnimationRef.current = null;
     };
-  }, [district, map]);
+  }, [district, isDetailPanelOpen, isSearchActive, map, selectedRestaurant]);
+
+  // Fit the map to search results so every result pin remains visible with the sheet open.
+  useEffect(() => {
+    if (!map || !isSearchActive) return;
+
+    cancelCameraAnimationRef.current?.();
+    cancelCameraAnimationRef.current = null;
+
+    const cleanup =
+      selectedRestaurant && isDetailPanelOpen
+        ? focusRestaurantInView(map, selectedRestaurant, {
+            isDetailPanelOpen,
+            maxZoom: SELECTED_RESTAURANT_ZOOM,
+          })
+        : fitSearchResultsInView(map, searchResults, {
+            isSingleResult: searchResults.length === 1,
+            isBottomSheetOpen: isSearchBottomSheetOpen,
+            isDetailPanelOpen,
+          });
+
+    return cleanup;
+  }, [
+    isDetailPanelOpen,
+    isSearchActive,
+    isSearchBottomSheetOpen,
+    map,
+    searchResults,
+    selectedRestaurant,
+  ]);
 
   // Create/update markers imperatively
   useEffect(() => {
@@ -186,33 +237,118 @@ function interpolate(start: number, end: number, progress: number): number {
   return start + (end - start) * progress;
 }
 
+function fitSearchResultsInView(
+  map: google.maps.Map,
+  results: Restaurant[],
+  options: {
+    isSingleResult: boolean;
+    isBottomSheetOpen: boolean;
+    isDetailPanelOpen: boolean;
+  },
+): () => void {
+  if (!globalThis.google?.maps?.LatLngBounds || !globalThis.google.maps.event) {
+    return () => {};
+  }
+
+  if (results.length === 0) {
+    return animateMapCamera(map, SEOUL_CENTER, DEFAULT_ZOOM);
+  }
+
+  const bounds = new google.maps.LatLngBounds();
+  for (const restaurant of results) {
+    bounds.extend({ lat: restaurant.lat, lng: restaurant.lng });
+  }
+
+  const padding = getSearchResultPadding(options);
+  map.fitBounds(bounds, padding);
+
+  if (!options.isSingleResult) {
+    return () => {};
+  }
+
+  const listener = google.maps.event.addListenerOnce(map, 'idle', () => {
+    const currentZoom = map.getZoom();
+    if (currentZoom !== undefined && currentZoom > SINGLE_SEARCH_RESULT_ZOOM) {
+      map.setZoom(SINGLE_SEARCH_RESULT_ZOOM);
+    }
+  });
+
+  return () => {
+    google.maps.event.removeListener(listener);
+  };
+}
+
+function getSearchResultPadding({
+  isSingleResult,
+  isBottomSheetOpen,
+  isDetailPanelOpen,
+}: {
+  isSingleResult: boolean;
+  isBottomSheetOpen: boolean;
+  isDetailPanelOpen: boolean;
+}): google.maps.Padding {
+  const viewportHeight = window.innerHeight;
+  const viewportWidth = window.innerWidth;
+  const sidePadding = Math.round(Math.max(40, Math.min(88, viewportWidth * 0.08)));
+  const topPadding = isSingleResult ? 132 : 148;
+  const sheetRatio = isDetailPanelOpen ? 0.7 : isBottomSheetOpen ? 0.45 : 0;
+  const desiredBottomPadding = Math.round(viewportHeight * sheetRatio + 24);
+  const maxBottomPadding = Math.max(96, viewportHeight - topPadding - 72);
+
+  return {
+    top: topPadding,
+    bottom: Math.min(Math.max(72, desiredBottomPadding), maxBottomPadding),
+    left: sidePadding,
+    right: sidePadding,
+  };
+}
+
+function focusRestaurantInView(
+  map: google.maps.Map,
+  restaurant: Restaurant,
+  options: {
+    isDetailPanelOpen: boolean;
+    maxZoom: number;
+  },
+): () => void {
+  if (!globalThis.google?.maps?.LatLngBounds || !globalThis.google.maps.event) {
+    return () => {};
+  }
+
+  const bounds = new google.maps.LatLngBounds();
+  bounds.extend({ lat: restaurant.lat, lng: restaurant.lng });
+
+  map.fitBounds(
+    bounds,
+    getSearchResultPadding({
+      isSingleResult: true,
+      isBottomSheetOpen: false,
+      isDetailPanelOpen: options.isDetailPanelOpen,
+    }),
+  );
+
+  const listener = google.maps.event.addListenerOnce(map, 'idle', () => {
+    const currentZoom = map.getZoom();
+    if (currentZoom !== undefined && currentZoom > options.maxZoom) {
+      map.setZoom(options.maxZoom);
+    }
+  });
+
+  return () => {
+    google.maps.event.removeListener(listener);
+  };
+}
+
 function createMarker(
   markerLib: google.maps.MarkerLibrary,
   restaurant: Restaurant,
   language: 'en' | 'ja' | 'zh',
   onSelect: (r: Restaurant) => void,
 ): google.maps.marker.AdvancedMarkerElement {
-  const rating = restaurant.rating;
-  const ratingCount = restaurant.rating_count;
-
-  // Determine color based on rating
-  let bgColor: string;
-  let textColor: string;
-  if (rating !== null && ratingCount >= 3 && rating >= 4.5) {
-    bgColor = '#16a34a'; // green-600
-    textColor = '#ffffff';
-  } else if (rating !== null && ratingCount >= 3 && rating >= 4.0) {
-    bgColor = '#86efac'; // green-300
-    textColor = '#166534';
-  } else {
-    bgColor = '#fde047'; // yellow-300
-    textColor = '#713f12';
-  }
-
-  // Display text
-  const displayText = rating !== null && ratingCount >= 3
-    ? rating.toFixed(1)
-    : '★';
+  const ratingStyle = getRestaurantRatingStyle(
+    restaurant.rating,
+    restaurant.rating_count,
+  );
 
   const content = document.createElement('div');
   content.innerHTML = `
@@ -221,14 +357,14 @@ function createMarker(
     ">
       <div style="
         min-width:32px;height:28px;border-radius:14px;
-        background:${bgColor};color:${textColor};
+        background:${ratingStyle.backgroundColor};color:${ratingStyle.color};
         display:flex;align-items:center;justify-content:center;
         font-weight:700;font-size:12px;
         padding:0 8px;
         border:2px solid white;
         box-shadow:0 2px 6px rgba(0,0,0,0.25);
       ">
-        ${displayText}
+        ${ratingStyle.displayText}
       </div>
       <div style="
         width:0;height:0;

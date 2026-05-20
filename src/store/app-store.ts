@@ -11,6 +11,8 @@ interface AppState {
   districtCounts: Record<string, number>;
   setActiveDistrict: (id: string | null) => void;
   setDistrictCounts: (counts: Record<string, number>) => void;
+  isDistrictBottomSheetOpen: boolean;
+  setDistrictBottomSheetOpen: (open: boolean) => void;
 
   // Restaurants
   restaurants: Restaurant[];
@@ -30,12 +32,17 @@ interface AppState {
   setSearchQuery: (q: string) => void;
   searchResults: Restaurant[];
   setSearchResults: (results: Restaurant[]) => void;
+  applySearchResults: (results: Restaurant[]) => void;
+  clearSearchMode: () => void;
+  dismissSearchResults: () => void;
+  isSearchActive: boolean;
   isSearchBottomSheetOpen: boolean;
   setSearchBottomSheetOpen: (open: boolean) => void;
 
   // UI
   isDetailPanelOpen: boolean;
   setDetailPanelOpen: (open: boolean) => void;
+  closeDetailPanel: () => void;
   closeBottomSheets: () => void;
   isLoading: boolean;
   setLoading: (loading: boolean) => void;
@@ -49,8 +56,41 @@ export const useAppStore = create<AppState>((set) => ({
   // Districts
   activeDistrict: null,
   districtCounts: {},
-  setActiveDistrict: (activeDistrict) => set({ activeDistrict }),
+  setActiveDistrict: (activeDistrict) =>
+    set((state) => ({
+      activeDistrict,
+      isDistrictBottomSheetOpen: activeDistrict !== null,
+      isTagFilterOpen: activeDistrict ? false : state.isTagFilterOpen,
+      isDetailPanelOpen: activeDistrict ? false : state.isDetailPanelOpen,
+      selectedRestaurant: activeDistrict ? null : state.selectedRestaurant,
+      ...(activeDistrict
+        ? {
+            searchQuery: '',
+            searchResults: [],
+            isSearchActive: false,
+            isSearchBottomSheetOpen: false,
+          }
+        : {
+            searchResults: state.searchResults,
+            isSearchActive: state.isSearchActive,
+          }),
+    })),
   setDistrictCounts: (districtCounts) => set({ districtCounts }),
+  isDistrictBottomSheetOpen: false,
+  setDistrictBottomSheetOpen: (isDistrictBottomSheetOpen) =>
+    set((state) => ({
+      isDistrictBottomSheetOpen,
+      isSearchBottomSheetOpen: isDistrictBottomSheetOpen
+        ? false
+        : state.isSearchBottomSheetOpen,
+      isDetailPanelOpen: isDistrictBottomSheetOpen
+        ? false
+        : state.isDetailPanelOpen,
+      isTagFilterOpen: isDistrictBottomSheetOpen ? false : state.isTagFilterOpen,
+      selectedRestaurant: isDistrictBottomSheetOpen
+        ? null
+        : state.selectedRestaurant,
+    })),
 
   // Restaurants
   restaurants: [],
@@ -60,6 +100,7 @@ export const useAppStore = create<AppState>((set) => ({
     set({
       selectedRestaurant,
       isDetailPanelOpen: selectedRestaurant !== null,
+      isDistrictBottomSheetOpen: false,
       isSearchBottomSheetOpen: false,
       isTagFilterOpen: false,
     }),
@@ -79,6 +120,9 @@ export const useAppStore = create<AppState>((set) => ({
       isTagFilterOpen,
       isSearchBottomSheetOpen: isTagFilterOpen ? false : state.isSearchBottomSheetOpen,
       isDetailPanelOpen: isTagFilterOpen ? false : state.isDetailPanelOpen,
+      isDistrictBottomSheetOpen: isTagFilterOpen
+        ? false
+        : state.isDistrictBottomSheetOpen,
       selectedRestaurant: isTagFilterOpen ? null : state.selectedRestaurant,
     })),
 
@@ -87,11 +131,51 @@ export const useAppStore = create<AppState>((set) => ({
   setSearchQuery: (searchQuery) => set({ searchQuery }),
   searchResults: [],
   setSearchResults: (searchResults) => set({ searchResults }),
+  applySearchResults: (searchResults) =>
+    set(() => {
+      const singleResult = searchResults.length === 1 ? searchResults[0]! : null;
+
+      return {
+        activeDistrict: null,
+        selectedTags: [],
+        isTagFilterOpen: false,
+        isDistrictBottomSheetOpen: false,
+        searchResults,
+        isSearchActive: true,
+        selectedRestaurant: singleResult,
+        isDetailPanelOpen: singleResult !== null,
+        isSearchBottomSheetOpen: singleResult === null,
+      };
+    }),
+  clearSearchMode: () =>
+    set({
+      searchQuery: '',
+      searchResults: [],
+      isSearchActive: false,
+      isSearchBottomSheetOpen: false,
+      isDistrictBottomSheetOpen: false,
+      isDetailPanelOpen: false,
+      selectedRestaurant: null,
+    }),
+  dismissSearchResults: () =>
+    set({
+      searchQuery: '',
+      searchResults: [],
+      isSearchActive: false,
+      isSearchBottomSheetOpen: false,
+      isDistrictBottomSheetOpen: false,
+      isDetailPanelOpen: false,
+      selectedRestaurant: null,
+    }),
+  isSearchActive: false,
   isSearchBottomSheetOpen: false,
   setSearchBottomSheetOpen: (isSearchBottomSheetOpen) =>
     set((state) => ({
       isSearchBottomSheetOpen,
       isTagFilterOpen: isSearchBottomSheetOpen ? false : state.isTagFilterOpen,
+      isDistrictBottomSheetOpen: isSearchBottomSheetOpen
+        ? false
+        : state.isDistrictBottomSheetOpen,
       isDetailPanelOpen: isSearchBottomSheetOpen ? false : state.isDetailPanelOpen,
       selectedRestaurant: isSearchBottomSheetOpen ? null : state.selectedRestaurant,
     })),
@@ -106,13 +190,55 @@ export const useAppStore = create<AppState>((set) => ({
         ? false
         : state.isSearchBottomSheetOpen,
       isTagFilterOpen: isDetailPanelOpen ? false : state.isTagFilterOpen,
+      isDistrictBottomSheetOpen: isDetailPanelOpen
+        ? false
+        : state.isDistrictBottomSheetOpen,
+    })),
+  closeDetailPanel: () =>
+    set((state) => ({
+      isDetailPanelOpen: false,
+      selectedRestaurant: null,
+      isSearchBottomSheetOpen:
+        state.isSearchActive && state.searchResults.length > 0
+          ? true
+          : state.isSearchBottomSheetOpen,
     })),
   closeBottomSheets: () =>
-    set({
+    set((state) => {
+      if (state.isSearchActive && state.isSearchBottomSheetOpen) {
+        return {
+          searchQuery: '',
+          searchResults: [],
+          isSearchActive: false,
+          isDetailPanelOpen: false,
+          isDistrictBottomSheetOpen: false,
+          isSearchBottomSheetOpen: false,
+          isTagFilterOpen: false,
+          selectedRestaurant: null,
+        };
+      }
+
+      if (
+        state.isSearchActive &&
+        state.isDetailPanelOpen &&
+        state.searchResults.length > 0
+      ) {
+        return {
+          isDetailPanelOpen: false,
+          isDistrictBottomSheetOpen: false,
+          isSearchBottomSheetOpen: true,
+          isTagFilterOpen: false,
+          selectedRestaurant: null,
+        };
+      }
+
+      return {
       isDetailPanelOpen: false,
+      isDistrictBottomSheetOpen: false,
       isSearchBottomSheetOpen: false,
       isTagFilterOpen: false,
       selectedRestaurant: null,
+      };
     }),
   isLoading: false,
   setLoading: (isLoading) => set({ isLoading }),

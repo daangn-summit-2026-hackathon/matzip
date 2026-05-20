@@ -17,7 +17,7 @@ function getSnapY(mode: SheetMode) {
 }
 
 export function DetailPanel() {
-  const { selectedRestaurant, isDetailPanelOpen, setDetailPanelOpen, language } =
+  const { selectedRestaurant, isDetailPanelOpen, closeDetailPanel, language } =
     useAppStore();
   const { t: i18nT } = useTranslation();
   const [mode, setMode] = useState<SheetMode>('closed');
@@ -50,10 +50,9 @@ export function DetailPanel() {
     setMode('closed');
     setTranslateY(window.innerHeight);
     setTimeout(() => {
-      setDetailPanelOpen(false);
-      useAppStore.getState().setSelectedRestaurant(null);
+      closeDetailPanel();
     }, 300);
-  }, [setDetailPanelOpen]);
+  }, [closeDetailPanel]);
 
   const snapTo = useCallback((targetMode: SheetMode) => {
     setIsAnimating(true);

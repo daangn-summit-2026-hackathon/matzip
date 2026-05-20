@@ -8,11 +8,12 @@ export function SearchBar() {
   const {
     searchQuery,
     setSearchQuery,
-    setSearchResults,
-    setSearchBottomSheetOpen,
+    applySearchResults,
+    clearSearchMode,
+    isSearchActive,
     restaurants,
     language,
-    setSelectedRestaurant,
+    toggleTag,
   } = useAppStore();
   const { t } = useTranslation();
   const [suggestions, setSuggestions] = useState<
@@ -30,6 +31,9 @@ export function SearchBar() {
       if (!value.trim()) {
         setSuggestions([]);
         setShowSuggestions(false);
+        if (isSearchActive) {
+          clearSearchMode();
+        }
         return;
       }
 
@@ -39,7 +43,7 @@ export function SearchBar() {
         setShowSuggestions(results.length > 0);
       }, 300);
     },
-    [language, restaurants, setSearchQuery],
+    [clearSearchMode, isSearchActive, language, restaurants, setSearchQuery],
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,16 +53,9 @@ export function SearchBar() {
 
     try {
       const results = await searchRestaurants(searchQuery, language);
-      setSearchResults(results);
-      if (results.length === 1) {
-        // Single result — show detail directly
-        setSelectedRestaurant(results[0]!);
-      } else {
-        setSearchBottomSheetOpen(true);
-      }
+      applySearchResults(results);
     } catch {
-      setSearchResults([]);
-      setSearchBottomSheetOpen(true);
+      applySearchResults([]);
     }
   };
 
@@ -71,22 +68,16 @@ export function SearchBar() {
     if (suggestion.type === 'restaurant') {
       // Single restaurant — go directly to detail
       const restaurant = restaurants.find((r) => r.id === suggestion.id);
-      if (restaurant) setSelectedRestaurant(restaurant);
+      if (restaurant) applySearchResults([restaurant]);
     } else if (suggestion.type === 'tag') {
-      useAppStore.getState().toggleTag(suggestion.id);
+      toggleTag(suggestion.id);
     } else {
       // Cuisine or other — perform search
       try {
         const results = await searchRestaurants(suggestion.label, language);
-        setSearchResults(results);
-        if (results.length === 1) {
-          setSelectedRestaurant(results[0]!);
-        } else {
-          setSearchBottomSheetOpen(true);
-        }
+        applySearchResults(results);
       } catch {
-        setSearchResults([]);
-        setSearchBottomSheetOpen(true);
+        applySearchResults([]);
       }
     }
   };

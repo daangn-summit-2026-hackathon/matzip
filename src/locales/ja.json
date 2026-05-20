@@ -5,6 +5,7 @@
   },
   "search": {
     "placeholder": "レストラン、料理を検索...",
+    "results": "検索結果",
     "noResults": "結果が見つかりません",
     "mapUnavailable": "マップビューは一時的に利用できません"
   },
