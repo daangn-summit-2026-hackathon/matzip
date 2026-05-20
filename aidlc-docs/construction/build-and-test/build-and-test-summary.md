@@ -46,7 +46,7 @@
 - [ ] `.env.local` filled with all credentials
 - [ ] `pnpm build` succeeds without errors
 - [ ] `pnpm deploy` deploys to Cloudflare Workers
-- [ ] Verify at `https://matzip-map.{account}.workers.dev`
+- [ ] Verify at `https://matzip.coldot-sub-1.workers.dev`
 
 ## Known Limitations (MVP)
 
