@@ -83,7 +83,7 @@ export const DISTRICTS: District[] = [
     zoom_level: 15,
     boundary: [],
     translations: {
-      name: { en: 'COEX/Samsung Station', ja: 'COEX/三成駅', zh: 'COEX/三成站' },
+      name: { en: 'COEX', ja: 'COEX/三成駅', zh: 'COEX/三成站' },
       description: {
         en: 'Mall dining, business lunch spots, and diverse food courts',
         ja: 'モールダイニング、ビジネスランチ、多様なフードコート',

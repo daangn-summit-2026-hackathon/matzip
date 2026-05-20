@@ -56,7 +56,7 @@ export const useAppStore = create<AppState>((set) => ({
   selectedRestaurant: null,
   setRestaurants: (restaurants) => set({ restaurants }),
   setSelectedRestaurant: (selectedRestaurant) =>
-    set({ selectedRestaurant, isDetailPanelOpen: !!selectedRestaurant }),
+    set({ selectedRestaurant, isDetailPanelOpen: selectedRestaurant !== null }),
 
   // Tags
   selectedTags: [],
