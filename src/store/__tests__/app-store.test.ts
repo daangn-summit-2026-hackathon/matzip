@@ -159,6 +159,35 @@ describe('bottom sheet state', () => {
     expect(useAppStore.getState().isSearchBottomSheetOpen).toBe(true);
   });
 
+  it('returns from a district detail sheet back to the district list sheet', () => {
+    useAppStore.getState().setActiveDistrict('district-1');
+    useAppStore.getState().setSelectedRestaurant(restaurant);
+
+    expect(useAppStore.getState().isDetailPanelOpen).toBe(true);
+    expect(useAppStore.getState().isDistrictBottomSheetOpen).toBe(false);
+
+    useAppStore.getState().closeDetailPanel();
+
+    expect(useAppStore.getState().activeDistrict).toBe('district-1');
+    expect(useAppStore.getState().selectedRestaurant).toBeNull();
+    expect(useAppStore.getState().isDetailPanelOpen).toBe(false);
+    expect(useAppStore.getState().isSearchBottomSheetOpen).toBe(false);
+    expect(useAppStore.getState().isDistrictBottomSheetOpen).toBe(true);
+  });
+
+  it('returns from a district detail sheet back to the district list on global close', () => {
+    useAppStore.getState().setActiveDistrict('district-1');
+    useAppStore.getState().setSelectedRestaurant(restaurant);
+
+    useAppStore.getState().closeBottomSheets();
+
+    expect(useAppStore.getState().activeDistrict).toBe('district-1');
+    expect(useAppStore.getState().selectedRestaurant).toBeNull();
+    expect(useAppStore.getState().isDetailPanelOpen).toBe(false);
+    expect(useAppStore.getState().isSearchBottomSheetOpen).toBe(false);
+    expect(useAppStore.getState().isDistrictBottomSheetOpen).toBe(true);
+  });
+
   it('dismisses search results back to the initial search state', () => {
     useAppStore.getState().setSearchQuery('Korean');
     useAppStore.getState().applySearchResults([restaurant, anotherRestaurant]);

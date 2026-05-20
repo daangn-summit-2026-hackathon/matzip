@@ -195,14 +195,23 @@ export const useAppStore = create<AppState>((set) => ({
         : state.isDistrictBottomSheetOpen,
     })),
   closeDetailPanel: () =>
-    set((state) => ({
-      isDetailPanelOpen: false,
-      selectedRestaurant: null,
-      isSearchBottomSheetOpen:
-        state.isSearchActive && state.searchResults.length > 0
+    set((state) => {
+      const shouldReturnToSearchResults =
+        state.isSearchActive && state.searchResults.length > 0;
+      const shouldReturnToDistrictList =
+        !state.isSearchActive && state.activeDistrict !== null;
+
+      return {
+        isDetailPanelOpen: false,
+        selectedRestaurant: null,
+        isSearchBottomSheetOpen: shouldReturnToSearchResults
           ? true
           : state.isSearchBottomSheetOpen,
-    })),
+        isDistrictBottomSheetOpen: shouldReturnToSearchResults
+          ? false
+          : shouldReturnToDistrictList,
+      };
+    }),
   closeBottomSheets: () =>
     set((state) => {
       if (state.isSearchActive && state.isSearchBottomSheetOpen) {
@@ -232,12 +241,26 @@ export const useAppStore = create<AppState>((set) => ({
         };
       }
 
+      if (
+        !state.isSearchActive &&
+        state.isDetailPanelOpen &&
+        state.activeDistrict !== null
+      ) {
+        return {
+          isDetailPanelOpen: false,
+          isDistrictBottomSheetOpen: true,
+          isSearchBottomSheetOpen: false,
+          isTagFilterOpen: false,
+          selectedRestaurant: null,
+        };
+      }
+
       return {
-      isDetailPanelOpen: false,
-      isDistrictBottomSheetOpen: false,
-      isSearchBottomSheetOpen: false,
-      isTagFilterOpen: false,
-      selectedRestaurant: null,
+        isDetailPanelOpen: false,
+        isDistrictBottomSheetOpen: false,
+        isSearchBottomSheetOpen: false,
+        isTagFilterOpen: false,
+        selectedRestaurant: null,
       };
     }),
   isLoading: false,
