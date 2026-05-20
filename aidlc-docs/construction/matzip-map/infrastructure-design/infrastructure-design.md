@@ -171,9 +171,9 @@ VITE_GOOGLE_MAPS_MAP_ID=[map-id]
 
 ## Domain & Networking
 
-### 기본 도메인 (무료)
+### 기본 도메인
 ```
-https://matzip-map.[account].workers.dev
+https://matzip.coldot-sub-1.workers.dev
 ```
 
 ### 커스텀 도메인 (선택적)
@@ -200,7 +200,7 @@ https://matzip-map.[account].workers.dev
 1. 코드 수정
 2. pnpm build (Vite 빌드)
 3. pnpm exec wrangler deploy (Cloudflare 배포)
-4. 확인: https://matzip-map.[account].workers.dev
+4. 확인: https://matzip.coldot-sub-1.workers.dev
 ```
 
 별도 CI/CD 없음. 수동 배포로 충분 (MVP 수준).
