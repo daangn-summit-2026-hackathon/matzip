@@ -37,11 +37,11 @@ export function TagFilterPanel() {
 
           {/* Panel */}
           <motion.div
-            initial={{ x: '-50%', y: '100%' }}
-            animate={{ x: '-50%', y: 0 }}
-            exit={{ x: '-50%', y: '100%' }}
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-0 left-1/2 z-50 w-full max-w-[480px] bg-white rounded-t-2xl p-6"
+            className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[480px] bg-white rounded-t-2xl p-6"
           >
             <h3 className="text-lg font-bold mb-4">{t('filter.title')}</h3>
 

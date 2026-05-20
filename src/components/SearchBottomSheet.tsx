@@ -121,7 +121,7 @@ export function SearchBottomSheet() {
 
   return (
     <div
-      className="fixed inset-x-0 top-0 z-50 flex flex-col bg-white rounded-t-2xl shadow-2xl sm:max-w-md sm:right-4 sm:left-auto sm:rounded-2xl"
+      className="fixed inset-x-0 top-0 z-50 mx-auto flex w-full max-w-[480px] flex-col bg-white rounded-t-2xl shadow-2xl"
       style={{
         transform: `translateY(${translateY}px)`,
         height: `calc(100dvh - ${translateY}px)`,
