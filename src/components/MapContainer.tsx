@@ -1,4 +1,4 @@
-import { APIProvider, Map, useMap } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { useEffect, useRef } from 'react';
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { useAppStore } from '@/store/app-store';
@@ -32,6 +32,7 @@ export function MapContainer() {
 
 function ClusteredMarkers({ district }: { district: typeof DISTRICTS[number] | undefined }) {
   const map = useMap();
+  const markerLib = useMapsLibrary('marker');
   const {
     restaurants,
     selectedTags,
@@ -58,7 +59,7 @@ function ClusteredMarkers({ district }: { district: typeof DISTRICTS[number] | u
 
   // Create/update markers imperatively
   useEffect(() => {
-    if (!map) return;
+    if (!map || !markerLib) return;
 
     // Clear old markers
     for (const marker of markersRef.current) {
@@ -76,7 +77,7 @@ function ClusteredMarkers({ district }: { district: typeof DISTRICTS[number] | u
     const newMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
 
     for (const restaurant of visibleRestaurants) {
-      const marker = createMarker(restaurant, language, setSelectedRestaurant);
+      const marker = createMarker(markerLib, restaurant, language, setSelectedRestaurant);
       newMarkers.push(marker);
     }
 
@@ -90,12 +91,13 @@ function ClusteredMarkers({ district }: { district: typeof DISTRICTS[number] | u
       }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, visibleRestaurants, language]);
+  }, [map, markerLib, visibleRestaurants, language]);
 
   return null;
 }
 
 function createMarker(
+  markerLib: google.maps.MarkerLibrary,
   restaurant: Restaurant,
   language: 'en' | 'ja' | 'zh',
   onSelect: (r: Restaurant) => void,
@@ -112,7 +114,7 @@ function createMarker(
     <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid white;margin-top:-1px;filter:drop-shadow(0 1px 1px rgba(0,0,0,0.1));"></div>
   `;
 
-  const marker = new google.maps.marker.AdvancedMarkerElement({
+  const marker = new markerLib.AdvancedMarkerElement({
     position: { lat: restaurant.lat, lng: restaurant.lng },
     title: t(restaurant.translations, 'name', language),
     content,
