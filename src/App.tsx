@@ -2,9 +2,6 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppStore } from '@/store/app-store';
 import { fetchRestaurantsByDistrict, fetchRestaurantCountsByDistrict } from '@/services/data.service';
-import { DISTRICTS } from '@/constants/districts';
-import { t } from '@/lib/translate';
-import { motion, AnimatePresence } from 'motion/react';
 
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { DistrictNavigationBar } from '@/components/DistrictNavigationBar';
@@ -23,7 +20,6 @@ export default function App() {
     setDistrictCounts,
     setLoading,
     setTagFilterOpen,
-    language,
     setLanguage,
   } = useAppStore();
   const { i18n, t: i18nT } = useTranslation();
@@ -65,8 +61,6 @@ export default function App() {
       .finally(() => setLoading(false));
   }, [activeDistrict, setRestaurants, setLoading]);
 
-  const district = DISTRICTS.find((d) => d.id === activeDistrict);
-
   return (
     <div className="h-full relative">
       {/* Full-screen Map */}
@@ -85,22 +79,6 @@ export default function App() {
           <DistrictNavigationBar />
         </nav>
       </div>
-
-      {/* District Description Banner */}
-      <AnimatePresence>
-        {district && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="absolute top-32 left-4 right-4 bg-white rounded-xl p-3 shadow-lg border border-gray-200 z-10"
-          >
-            <p className="text-sm text-gray-700">
-              {t(district.translations, 'description', language)}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Select District Prompt */}
       {!activeDistrict && (

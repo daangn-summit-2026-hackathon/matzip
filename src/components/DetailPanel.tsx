@@ -16,15 +16,8 @@ export function DetailPanel() {
     setDetailPanelOpen(false);
   };
 
-  const handleExitComplete = () => {
-    // Only clear restaurant after exit animation fully completes
-    if (!useAppStore.getState().isDetailPanelOpen) {
-      useAppStore.getState().setSelectedRestaurant(null);
-    }
-  };
-
   return (
-    <AnimatePresence onExitComplete={handleExitComplete}>
+    <AnimatePresence>
       {isDetailPanelOpen && selectedRestaurant && (
         <motion.div
           initial={{ y: '100%' }}

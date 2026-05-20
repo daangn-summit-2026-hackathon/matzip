@@ -56,7 +56,12 @@ export const useAppStore = create<AppState>((set) => ({
   selectedRestaurant: null,
   setRestaurants: (restaurants) => set({ restaurants }),
   setSelectedRestaurant: (selectedRestaurant) =>
-    set({ selectedRestaurant, isDetailPanelOpen: selectedRestaurant !== null }),
+    set({
+      selectedRestaurant,
+      isDetailPanelOpen: selectedRestaurant !== null,
+      isSearchBottomSheetOpen: false,
+      isTagFilterOpen: false,
+    }),
 
   // Tags
   selectedTags: [],
@@ -68,7 +73,13 @@ export const useAppStore = create<AppState>((set) => ({
     })),
   clearTags: () => set({ selectedTags: [] }),
   isTagFilterOpen: false,
-  setTagFilterOpen: (isTagFilterOpen) => set({ isTagFilterOpen }),
+  setTagFilterOpen: (isTagFilterOpen) =>
+    set((state) => ({
+      isTagFilterOpen,
+      isSearchBottomSheetOpen: isTagFilterOpen ? false : state.isSearchBottomSheetOpen,
+      isDetailPanelOpen: isTagFilterOpen ? false : state.isDetailPanelOpen,
+      selectedRestaurant: isTagFilterOpen ? null : state.selectedRestaurant,
+    })),
 
   // Search
   searchQuery: '',
@@ -77,11 +88,24 @@ export const useAppStore = create<AppState>((set) => ({
   setSearchResults: (searchResults) => set({ searchResults }),
   isSearchBottomSheetOpen: false,
   setSearchBottomSheetOpen: (isSearchBottomSheetOpen) =>
-    set({ isSearchBottomSheetOpen }),
+    set((state) => ({
+      isSearchBottomSheetOpen,
+      isTagFilterOpen: isSearchBottomSheetOpen ? false : state.isTagFilterOpen,
+      isDetailPanelOpen: isSearchBottomSheetOpen ? false : state.isDetailPanelOpen,
+      selectedRestaurant: isSearchBottomSheetOpen ? null : state.selectedRestaurant,
+    })),
 
   // UI
   isDetailPanelOpen: false,
-  setDetailPanelOpen: (isDetailPanelOpen) => set({ isDetailPanelOpen }),
+  setDetailPanelOpen: (isDetailPanelOpen) =>
+    set((state) => ({
+      isDetailPanelOpen,
+      selectedRestaurant: isDetailPanelOpen ? state.selectedRestaurant : null,
+      isSearchBottomSheetOpen: isDetailPanelOpen
+        ? false
+        : state.isSearchBottomSheetOpen,
+      isTagFilterOpen: isDetailPanelOpen ? false : state.isTagFilterOpen,
+    })),
   isLoading: false,
   setLoading: (isLoading) => set({ isLoading }),
 }));

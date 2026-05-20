@@ -19,7 +19,7 @@ export function LanguageSwitcher() {
   return (
     <button
       onClick={handleSwitch}
-      className="px-3 py-1.5 rounded-full text-sm font-medium bg-white shadow-lg border border-gray-100 hover:bg-gray-50 active:scale-95 transition-transform min-w-[44px] min-h-[44px] flex items-center justify-center"
+      className="px-4 py-3 rounded-full text-base font-medium bg-white shadow-lg border border-gray-100 hover:bg-gray-50 active:scale-95 transition-transform min-w-[48px] min-h-[48px] flex items-center justify-center"
       aria-label="Switch language"
     >
       {language.toUpperCase()}
